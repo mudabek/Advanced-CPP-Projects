@@ -200,23 +200,25 @@ int main() {
     }
 
     REPEAT(100) {
-        std::vector<double> vec, vec2;
+        std::vector<double> vec, vec2;/*
         RandomFillDouble(vec, 1000);
         RandomFillDouble(vec2, 1000);
 
         std::stringstream stream;
+
         stream << vec.size() << '\n';
         stream << vec;
 
         ASSERT_TRUE_MSG(*(stream.str().end() - 1) == '\n', "Stream output operator")
-
+        
         stream >> vec2;
+
         ASSERT_TRUE(vec.size() == vec2.size())
 
         for (size_t i = 0; i < vec.size(); ++i) {
             ASSERT_TRUE_MSG(fabs(vec[i] - vec2[i]) < 1e-2, "Stream input operator")
         }
-        /*
+        
         stream << vec << vec2;
         stream.str("0 0");
         stream >> vec >> vec2;
@@ -227,7 +229,6 @@ int main() {
         vec = vec2;
         reverse(vec);
         std::reverse(vec2.begin(), vec2.end());
-
         ASSERT_EQUAL_MSG(vec, vec2, "reverse")
     }
 }
