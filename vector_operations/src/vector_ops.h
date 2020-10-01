@@ -7,23 +7,30 @@
 
 namespace task {
     
-    double round_up(double value, int decimal_places) {
+    //*** Helper functions ***//
+
+    double roundUp(double value, int decimal_places) {
         const double multiplier = std::pow(10.0, decimal_places);
         return std::ceil(value * multiplier) / multiplier;
     }
+
     
-    double vector_len(const std::vector<double>& a) {
+    double vectorLen(const std::vector<double>& a) {
         double len = 0;
         
         for (size_t i = 0; i < a.size(); ++ i) {
             len += a[i] * a[i];
         }
+        
         return sqrt(len);
     }
+
     
     double crossHelper(const double& a1, const double& a2, const double& b1, const double& b2) {
         return a1 * b2 - a2 * b1;
     }
+    
+    //*** Overloading functions ***//
 
     std::vector<double> operator+ (const std::vector<double>& a, const std::vector<double>& b) {
         std::vector<double> c;
@@ -31,8 +38,10 @@ namespace task {
         for (size_t i = 0; i < a.size(); ++ i) {
             c.push_back(a[i] + b[i]);
         }
+        
         return c;
     }
+
 
     std::vector<double> operator+ (const std::vector<double>& a) {
         std::vector<double> c;
@@ -43,14 +52,17 @@ namespace task {
 
         return c;
     }
+    
 
     std::vector<double> operator- (const std::vector<double>& a) {
         std::vector<double> c;
         for (size_t i = 0; i < a.size(); ++ i) {
             c.push_back(-a[i]);
         }
+        
         return c;
     }
+    
 
     std::vector<double> operator- (const std::vector<double>& a, const std::vector<double>& b) {
         std::vector<double> c;
@@ -58,8 +70,10 @@ namespace task {
         for (size_t i = 0; i < a.size(); ++ i) {
             c.push_back(a[i] - b[i]);
         }
+        
         return c;
     }
+    
 
     double operator* (const std::vector<double>& a, const std::vector<double>& b) {
         double c = 0;
@@ -71,7 +85,6 @@ namespace task {
         return c;
     }
 
-    
 
     std::vector<double> operator% (const std::vector<double>& a, const std::vector<double>& b) {
         std::vector<double> c;
@@ -83,52 +96,71 @@ namespace task {
         return c;
     }
     
+    
 
     bool operator|| (const std::vector<double>& a, const std::vector<double>& b) {
-        if (abs(round_up(a * b, 6)) == abs(round_up(vector_len(a) * vector_len(b), 6)))
+        if (abs(roundUp(a * b, 6)) == abs(roundUp(vectorLen(a) * vectorLen(b), 6)))
             return true;
+        
         return false;
     }
+    
 
     bool operator&& (const std::vector<double>& a, const std::vector<double>& b) {
-        if (round_up(a * b, 6) == round_up(vector_len(a) * vector_len(b), 6))
+        if (roundUp(a * b, 6) == roundUp(vectorLen(a) * vectorLen(b), 6))
             return true;
-        return false;
         
+        return false;
     }
+    
 
-    std::vector<double> operator>> (std::istream &input, std::vector<double>& c) {
+    std::istream& operator>> (std::istream &input, std::vector<double>& a) {
         double temp;
         int len;
         
         input >> len;
+        
+        if (len == 0) {
+            a.clear();
+            return input;
+        }
+        
         for (int i = 0; i < len; ++ i) {
             input >> temp;
-            c.push_back(temp);
+            a[i] = temp;
         }
+        
+        return input;
     }
+    
 
-    std::vector<double> operator<< (std::ostream& output, const std::vector<double>& a) {
+    std::ostream& operator<< (std::ostream &output, const std::vector<double>& a) {
         for (int i = 0; i < a.size(); ++ i) {
             output << a[i] << " ";
         }
+        
         output << std::endl;
+        
+        return output;
     }
+    
 
     std::vector<double> reverse(std::vector<double>& a) {
         double temp;
         int j = a.size() - 1;
 	    int i = 0;
-
+        
 	    while(i < j) {
 		    temp = a[i];
 		    a[i] = a[j];
 		    a[j] = temp;
-		    i++;
-		    j--;
+		    i ++;
+		    j --;
 	    }
 	    
+	    return a;
     }
+    
 
     std::vector<int> operator| (const std::vector<int>& a, const std::vector<int>& b) {
         std::vector<int> c;
@@ -139,6 +171,7 @@ namespace task {
         return c;
     }
 
+
     std::vector<int> operator& (const std::vector<int>& a, const std::vector<int>& b) {
         std::vector<int> c;
 
@@ -147,4 +180,5 @@ namespace task {
         }
         return c;
     }
+    
 }  // namespace task
