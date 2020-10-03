@@ -3,10 +3,27 @@
 
 typedef std::function<int (int)> Op;
 
-
-
 Op compose (size_t n, Op ops[]) {
-    /// Your code goes here.
+    
+    if (n == 0) {
+        Op idemFunc = [] (int x) -> int {
+            return x;
+        };
+        return idemFunc;
+    }
+    
+    auto exec = 
+        [] (int n, Op ops[]) -> Op {
+            return [n, ops] (int x) {
+                int temp = x;
+                for (int i = n - 1; i > -1; -- i) {
+                    temp = ops[i](temp);
+                }
+                return temp;
+            };
+        };
+    
+    return exec(n, ops);
 }
 
 
@@ -65,3 +82,27 @@ int main () {
         }
     }
 }
+
+
+/*
+
+Op composeRec (size_t n, Op ops[]) {
+    
+    if (n == 0) {
+        Op idemFunc = [] (const int& x) -> int {return x;};
+        return idemFunc;
+    }
+    
+    if (n == 1) {
+        return ops[0];
+    }
+    
+    Op opsCopy[n - 1];
+    
+    std::copy(ops + 1, ops + n, opsCopy);
+
+    compose(n - 1, opsCopy);
+    std::cout << "returning" << std::endl;
+    return ops[0];
+}
+*/
