@@ -82,27 +82,3 @@ int main () {
         }
     }
 }
-
-
-/*
-
-Op composeRec (size_t n, Op ops[]) {
-    
-    if (n == 0) {
-        Op idemFunc = [] (const int& x) -> int {return x;};
-        return idemFunc;
-    }
-    
-    if (n == 1) {
-        return ops[0];
-    }
-    
-    Op opsCopy[n - 1];
-    
-    std::copy(ops + 1, ops + n, opsCopy);
-
-    compose(n - 1, opsCopy);
-    std::cout << "returning" << std::endl;
-    return ops[0];
-}
-*/
