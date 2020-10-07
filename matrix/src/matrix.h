@@ -17,6 +17,7 @@ class Matrix {
 
 public:
 
+
     Matrix();
     Matrix(size_t rows, size_t cols);
     Matrix(const Matrix& copy);
@@ -55,7 +56,9 @@ public:
     bool operator!=(const Matrix& a) const;
 
     // Your code goes here...
-
+    double** mat;
+    size_t rows;
+    size_t cols;
 };
 
 
