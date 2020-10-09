@@ -19,6 +19,7 @@ public:
 
 
     Matrix();
+    ~Matrix();
     Matrix(size_t rows, size_t cols);
     Matrix(const Matrix& copy);
     Matrix& operator=(const Matrix& a);
@@ -28,8 +29,38 @@ public:
     void set(size_t row, size_t col, const double& value);
     void resize(size_t new_rows, size_t new_cols);
 
-    /* ??? */ operator[](size_t row);
-    /* ??? */ operator[](size_t row) const;
+
+    class Row {
+        
+        friend class Matrix;
+        
+    public:
+        
+        double& operator[](size_t col);
+    
+        Row(Matrix &parent_, size_t row_);
+
+        Matrix& parent;
+        size_t row;
+    };
+    
+    
+    class ConstRow {
+        
+        friend class Matrix;
+    
+    public:
+        
+        double& operator[](size_t col) const;
+    
+        ConstRow(Matrix &parent_, size_t row_);
+
+        const Matrix& parent;
+        size_t row;
+    };
+    
+    double* operator[](size_t row);
+    const double* operator[](size_t row) const;
 
     Matrix& operator+=(const Matrix& a);
     Matrix& operator-=(const Matrix& a);
@@ -55,7 +86,7 @@ public:
     bool operator==(const Matrix& a) const;
     bool operator!=(const Matrix& a) const;
 
-    // Your code goes here...
+    public:
     double** mat;
     size_t rows;
     size_t cols;

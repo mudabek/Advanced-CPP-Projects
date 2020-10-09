@@ -1,79 +1,66 @@
 #include "matrix.h"
-
+#include "math.h"
 #include <vector>
 #include <iostream>
 
-using namespace task;
 
-class Matrix
+
+namespace task
 {
-public:
-    
-    Matrix()
+
+    task::Matrix::Matrix()
     {
         rows = 1;
         cols = 1;
-        double mat[rows][cols] = {1};
-        return this;
+        mat[rows][cols] = {1};
     }
     
-    ~Matrix()
+    task::Matrix::~Matrix()
     {
-        delete rows;
-        delete cols;
+        for (int r = 0; r < rows; ++ r)
+        {
+            delete[] mat[r];
+        }
         delete[] mat;
     }
     
     
-    Matrix(size_t rows, size_t cols)
+    task::Matrix::Matrix(size_t rows, size_t cols)
     {
-        rows = rows;
-        cols = cols;
+        this->rows = rows;
+        this->cols = cols;
         if (rows == cols)
-            double mat[rows][cols] = {1};
+            mat[rows][cols] = {1};
         else
         {
-            double mat[rows][cols] = {0};
+            mat[rows][cols] = {0};
             for (int r = 0; r < rows; ++ r) 
             {
-                for int (int c = 0; c < cols; ++ c)
+                for (int c = 0; c < cols; ++ c)
                 {
                     if (r == c)
                         mat[r][c] = 1;
                 }
             }
         }
-        return this;
     }
     
     
-    Matrix(const Matrix& copy)
+    task::Matrix::Matrix(const task::Matrix& copy)
     {
+        mat = copy.mat;
         rows = copy.rows;
         cols = copy.cols;
-        mat = new double[rows][cols];
-        
-        for (int r = 0; r < rows; ++ r) 
-        {
-            for int (int c = 0; c < cols; ++ c)
-            {
-                if (r == c)
-                    mat[r][c] = copy[r][c];
-                else
-                    mat[r][c] = copy[r][c];
-            }
-        }
-        return this;
     }
     
     
-    Matrix& operator=(const Matrix& a)
+    
+    task::Matrix &task::Matrix::operator=(const task::Matrix& a)
     {
-        if (&a == *this) 
-            return *this;
-            
-        delete rows;
-        delete cols;
+        for (int r = 0; r < rows; ++ r)
+        {
+            delete[] mat[r];
+        }
         delete[] mat;
         
         mat = a.mat;
@@ -84,39 +71,37 @@ public:
     }
     
     
-    double& get(size_t row, size_t col)
+    double& task::Matrix::get(size_t row, size_t col)
     {
         return mat[row][col];
     }
     
     
-    const double& get(size_t row, size_t col) const
+    const double& task::Matrix::get(size_t row, size_t col) const
     {
         return mat[row][col];
     }
     
     
-    void set(size_t row, size_t col, const double& value)
+    void task::Matrix::set(size_t row, size_t col, const double& value)
     {
         mat[row][col] = value;
     }
     
     
-    void resize(size_t new_rows, size_t new_cols)
+    void task::Matrix::resize(size_t new_rows, size_t new_cols)
     {
-        double new_mat[new_rows][new_cols] = {0};
+        double **new_mat;
+        new_mat[new_rows][new_cols] = {0};
         
         for (int r = 0; r < new_rows; ++ r) 
         {
-            for int (int c = 0; c < new_cols; ++ c)
+            for (int c = 0; c < new_cols; ++ c)
             {
                 if (r <= rows & c <= cols)
                     new_mat[r][c] = mat[r][c];
             }
         }
-        delete rows;
-        delete cols;
-        delete[] mat;
         
         rows = new_rows;
         cols = new_cols;
@@ -124,56 +109,31 @@ public:
     }
     
     
-    
-    class Row {
-        
-        friend class Matrix;
-        
-    public:
-        
-        int& operator[](int col)
-        {
-            return parent.mat[row][col];
-        }
-        
-        int& operator[](int col) const
-        {
-            return parent.mat[row][col];
-        }
-        
-    private:
-    
-        Row(Matrix &parent_, int row_) : parent(parent_), row(row_) {}
-
-        Matrix& parent;
-        int row;
-    };
-    
-    
-    Row& operator[](size_t row)
+    double* task::Matrix::operator[](size_t row)
     {
-        Row curRow = Row(mat, row);
-        return curRow[];
+        double* pRow = *mat + row;
+        return pRow;
     }
     
-    Row& operator[](size_t row) const
+    const double* task::Matrix::operator[](size_t row) const
     {
-        Row curRow = Row(mat, row);
-        return curRow[];
+        const double* pRow = *mat + row;
+        return pRow;
     }
     
-    Matrix operator+(const Matrix& a) const
+    
+    task::Matrix task::Matrix::operator+(const task::Matrix& a) const
     {
         if (a.rows != rows | a.cols != cols)
             throw OutOfBoundsException();
         
-        Matrix newMat = Matrix(rows, cols);
+        task::Matrix newMat = task::Matrix(rows, cols);
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < cols; ++ c)
+            for (int c = 0; c < cols; ++ c)
             {
-                newMat.mat[r][c] = this.mat[r][c] + a.mat[r][c];
+                newMat.mat[r][c] = mat[r][c] + a.mat[r][c];
             }
         }
         
@@ -181,23 +141,23 @@ public:
     }
     
     
-    Matrix& operator+=(const Matrix&a)
+    task::Matrix &task::Matrix::operator+=(const task::Matrix&a)
     {
         return *this = *this + a;
     }
     
-    Matrix operator-(const Matrix& a) const
+    task::Matrix task::Matrix::operator-(const task::Matrix& a) const
     {
         if (a.rows != rows | a.cols != cols)
             throw OutOfBoundsException();
         
-        Matrix newMat = Matrix(rows, cols);
+        task::Matrix newMat = task::Matrix(rows, cols);
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < cols; ++ c)
+            for (int c = 0; c < cols; ++ c)
             {
-                newMat.mat[r][c] = this.mat[r][c] - a.mat[r][c];
+                newMat.mat[r][c] = mat[r][c] - a.mat[r][c];
             }
         }
         
@@ -205,27 +165,27 @@ public:
     }
     
     
-    Matrix& operator-=(const Matrix&a)
+    task::Matrix& task::Matrix::operator-=(const task::Matrix&a)
     {
         return *this = *this - a;
     }
     
     
     
-    Matrix operator*(const Matrix& a) const
+    task::Matrix task::Matrix::operator*(const task::Matrix& a) const
     {
         if (cols != a.rows)
             throw SizeMismatchException();
         
-        Matrix newMat = Matrix(rows, a.cols);
+        task::Matrix newMat = task::Matrix(rows, a.cols);
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < a.cols; ++ c)
+            for (int c = 0; c < a.cols; ++ c)
             {
                 for (int k = 0; k < a.rows; ++ k)
                 {
-                    newMat.mat[r][c] += this.mat[r][k] * a.mat[k][c];
+                    newMat.mat[r][c] += mat[r][k] * a.mat[k][c];
                 }
             }
         }
@@ -234,22 +194,22 @@ public:
     }
     
     
-    Matrix& operator*=(const Matrix&a)
+    task::Matrix &task::Matrix::operator*=(const task::Matrix&a)
     {
         return *this = *this * a;
     }
     
     
     
-    Matrix operator*(const double& a) const
+    task::Matrix task::Matrix::operator*(const double& a) const
     {
-        Matrix newMat = Matrix(rows, cols);
+        task::Matrix newMat = task::Matrix(rows, cols);
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < cols; ++ c)
+            for (int c = 0; c < cols; ++ c)
             {
-                newMat.mat[r][c] = this.mat[r][c] * a;
+                newMat.mat[r][c] = mat[r][c] * a;
             }
         }
         
@@ -257,34 +217,66 @@ public:
     }
     
     
-    Matrix& operator*=(const double& number)
+    task::Matrix &task::Matrix::operator*=(const double& number)
     {
         return *this = *this * number;
     }
     
     
-    Matrix operator-() const
+    task::Matrix task::Matrix::operator-() const
     {
-        return *this = *this * 1;
+        Matrix newMat = *this * -1.0;
+        return newMat;
     }
     
     
-    Matrix operator+() const
+    task::Matrix task::Matrix::operator+() const
     {
         return *this;
     }
     
+    /*
+    double detHelper(double** task::Matrix, int n)
+    {
+        int det = 0;
+        int task::Matrix[rows][cols];
+        if (n == 2)
+            return ((task::Matrix[0][0] * task::Matrix[1][1]) - (task::Matrix[1][0] * task::Matrix[0][1]));
+        else 
+        {
+            for (int x = 0; x < n; x++) 
+            {
+                int subi = 0;
+                for (int i = 1; i < n; i++) 
+                {
+                    int subj = 0;
+                    for (int j = 0; j < n; j++) 
+                    {
+                       if (j == x)
+                       continue;
+                       task::Matrix[subi][subj] = task::Matrix[i][j];
+                       subj++;
+                    }
+                    subi++;
+                }
+                det = det + (pow(-1, x) * task::Matrix[0][x] * detHelper(task::Matrix, n - 1));
+            }
+        }
+        return det;  
+    }
+    
     
     /* formula for finding determinant taken from tutorialspoint.com*/
-    double det() const
+    /*
+    double task::Matrix::det() const
     {
         if(rows != cols)
             throw SizeMismatchException();
             
         int det = 0;
-        int submatrix[rows][cols];
+        int task::Matrix[rows][cols];
         if (rows == 2)
-            return ((matrix[0][0] * matrix[1][1]) - (matrix[1][0] * matrix[0][1]));
+            return ((mat[0][0] * mat[1][1]) - (mat[1][0] * mat[0][1]));
         else 
         {
             for (int x = 0; x < rows; x++) 
@@ -297,27 +289,27 @@ public:
                     {
                        if (j == x)
                        continue;
-                       submatrix[subi][subj] = matrix[i][j];
+                       task::Matrix[subi][subj] = mat[i][j];
                        subj++;
                     }
                     subi++;
                 }
-                det = det + (pow(-1, x) * matrix[0][x] * determinant( submatrix, rows - 1 ));
+                det = det + (pow(-1, x) * mat[0][x] * detHelper(task::Matrix, rows - 1));
             }
         }
         return det;
     }
+    */
     
-    
-    void transpose()
+    void task::Matrix::transpose()
     {
-        Matrix transp = Matrix(cols, rows);
+        task::Matrix transp = task::Matrix(cols, rows);
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < cols; ++ c)
+            for (int c = 0; c < cols; ++ c)
             {
-                transp.mat[c][r] = this.mat[r][c];
+                transp.mat[c][r] = mat[r][c];
             }
         }
         
@@ -325,15 +317,15 @@ public:
     }
     
     
-    Matrix transposed() const
+    task::Matrix task::Matrix::transposed() const
     {
-        Matrix transp = Matrix(cols, rows);
+        task::Matrix transp = task::Matrix(cols, rows);
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < cols; ++ c)
+            for (int c = 0; c < cols; ++ c)
             {
-                transp.mat[c][r] = this.mat[r][c];
+                transp.mat[c][r] = mat[r][c];
             }
         }
         
@@ -341,51 +333,51 @@ public:
     }
     
     
-    double trace() const
+    double task::Matrix::trace() const
     {
-        if (row != col)
+        if (rows != cols)
             throw SizeMismatchException();
             
         double trac = 0;
         
         for (int r = 0; r < rows; ++ r) 
         {
-            trac += mat[r][c];
+            trac += mat[r][r];
         }
         
         return trac;
     }
     
     
-    std::vector<double> getRow(size_t row)
+    std::vector<double> task::Matrix::getRow(size_t row)
     {
         std::vector<double> rower;
         
-        for (int c = 0; c < cols; c++)
+        for (int c = 0; c < cols; ++ c)
             rower.push_back(mat[row][c]);
             
         return rower;
     }
     
-    std::vector<double> getColumn(size_t column)
+    std::vector<double> task::Matrix::getColumn(size_t column)
     {
         std::vector<double> columner;
         
-        for (int r = 0; r < rows; c++)
+        for (int r = 0; r < rows; ++ r)
             columner.push_back(mat[r][column]);
             
         return columner;
     }
     
     
-    bool operator==(const Matrix& a) const
+    bool task::Matrix::operator==(const task::Matrix& a) const
     {
-        if (col != a.col | row != a.row)
+        if (cols != a.cols | rows != a.rows)
             return false;
         
         for (int r = 0; r < rows; ++ r) 
         {
-            for int (int c = 0; c < cols; ++ c)
+            for (int c = 0; c < cols; ++ c)
             {
                 if (mat[r][c] != a.mat[r][c])
                     return false;
@@ -395,12 +387,62 @@ public:
     }
     
     
-    bool operator!=(const Matrix& a) const
+    bool task::Matrix::operator!=(const task::Matrix& a) const
     {
-        return !(this == a);   
+        return !(*this == a);   
     }
     
-};
-
+    
+    
+    
+    
+    std::ostream& operator<<(std::ostream& output, const task::Matrix& matrix)
+    {
+        for (int r = 0; r < matrix.rows; ++ r)
+        {
+            for (int c = 0; c < matrix.cols; ++ c)
+            {
+                output << matrix.get(r, c) << " ";
+            }
+        }
+        output << std::endl;
+        
+        return output;
+    }
+    
+    
+    std::istream& operator>>(std::istream& input, task::Matrix& matrix)
+    {
+        double temp;
+        int rw, cln;
+        
+        input >> rw >> cln;
+        
+        for (int r = 0; r < rw; ++ r)
+        {
+            for (int c = 0; c < cln; ++ c)
+            {
+                input >> temp;
+                matrix.set(r, c, temp);
+            }
+        }
+    }
+    
+    
+    task::Matrix operator*(const double& a, const task::Matrix& b)
+    {
+        task::Matrix newMat = task::Matrix(b.rows, b.cols);
+        
+        for (int r = 0; r < b.rows; ++ r) 
+        {
+            for (int c = 0; c < b.cols; ++ c)
+            {
+                newMat.mat[r][c] = b.mat[r][c] * a;
+            }
+        }
+        return newMat;
+    } 
+    
+}
 
 
