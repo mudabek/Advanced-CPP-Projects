@@ -86,10 +86,13 @@ public:
     bool operator==(const Matrix& a) const;
     bool operator!=(const Matrix& a) const;
 
-    public:
-    double** mat;
+    double Minor(double row_, double col_) const;
+    void checkDim (size_t row, size_t col);
+    void checkDim (size_t row, size_t col) const;
+
     size_t rows;
     size_t cols;
+    double* mat;
 };
 
 
