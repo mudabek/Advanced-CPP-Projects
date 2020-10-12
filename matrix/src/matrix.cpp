@@ -7,8 +7,58 @@
 
 namespace task
 {
+ /*   
+class Row 
+{
+    
+    friend class task::Matrix;
+    
+public:
+
+    task::Matrix& parent;
+    int row;
+    
+    Row(task::Matrix parent_, size_t row_) : parent(parent_), row(row_) {}
+    
+    double operator[](size_t col)
+    {
+        return parent.mat[parent.cols * row + col];
+    }
+};
 
 
+class ConstRow 
+{
+    
+    friend class task::Matrix;
+    
+    public:
+
+    ConstRow(task::Matrix& parent_, size_t row_) : parent(parent_), row(row_) {}
+    
+    const double operator[](size_t col) const
+    {
+        return parent.mat[parent.cols * row + col];
+    }
+    
+    private:
+    
+    const task::Matrix& parent;
+    int row;
+    
+};
+
+task::Matrix::Row task::Matrix::operator[](size_t row)
+{
+    return Row(*this, row);
+}
+
+task::Matrix::ConstRow task::Matrix::operator[](size_t row) const
+{
+    return ConstRow(*this, row);
+}*/
+    
+    
 task::Matrix::Matrix()
 {
     rows = 1;
@@ -159,6 +209,13 @@ const double* task::Matrix::operator[](size_t row) const
     
     return pRow;
 }
+
+
+
+
+
+
+
 
 
 task::Matrix task::Matrix::operator+(const task::Matrix& a) const

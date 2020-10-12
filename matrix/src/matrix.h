@@ -29,7 +29,7 @@ public:
     void set(size_t row, size_t col, const double& value);
     void resize(size_t new_rows, size_t new_cols);
 
-
+    /*
     class Row {
         
         friend class Matrix;
@@ -59,8 +59,14 @@ public:
         size_t row;
     };
     
+    Row operator[](size_t row);
+    ConstRow operator[](size_t row) const;
+    */
+       
     double* operator[](size_t row);
     const double* operator[](size_t row) const;
+    
+   
 
     Matrix& operator+=(const Matrix& a);
     Matrix& operator-=(const Matrix& a);
