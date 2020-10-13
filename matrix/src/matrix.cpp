@@ -7,57 +7,7 @@
 
 namespace task
 {
- /*   
-class Row 
-{
-    
-    friend class task::Matrix;
-    
-public:
 
-    task::Matrix& parent;
-    int row;
-    
-    Row(task::Matrix parent_, size_t row_) : parent(parent_), row(row_) {}
-    
-    double operator[](size_t col)
-    {
-        return parent.mat[parent.cols * row + col];
-    }
-};
-
-
-class ConstRow 
-{
-    
-    friend class task::Matrix;
-    
-    public:
-
-    ConstRow(task::Matrix& parent_, size_t row_) : parent(parent_), row(row_) {}
-    
-    const double operator[](size_t col) const
-    {
-        return parent.mat[parent.cols * row + col];
-    }
-    
-    private:
-    
-    const task::Matrix& parent;
-    int row;
-    
-};
-
-task::Matrix::Row task::Matrix::operator[](size_t row)
-{
-    return Row(*this, row);
-}
-
-task::Matrix::ConstRow task::Matrix::operator[](size_t row) const
-{
-    return ConstRow(*this, row);
-}*/
-    
     
 task::Matrix::Matrix()
 {
@@ -70,6 +20,7 @@ task::Matrix::Matrix()
         mat[i] = 1;
     }
 }
+
 
 task::Matrix::~Matrix()
 {
@@ -110,7 +61,6 @@ task::Matrix::Matrix(const task::Matrix& copy)
 }
 
 
-
 task::Matrix &task::Matrix::operator=(const task::Matrix& a)
 {
     if (a == *this)
@@ -130,11 +80,13 @@ task::Matrix &task::Matrix::operator=(const task::Matrix& a)
     return *this;
 }
 
+
 void task::Matrix::checkDim (size_t row, size_t col)
 {
     if (row > (rows - 1) || row < 0 || col > (cols - 1) || col < 0)
         throw OutOfBoundsException();
 }
+
 
 void task::Matrix::checkDim (size_t row, size_t col) const
 {
@@ -200,6 +152,7 @@ double* task::Matrix::operator[](size_t row)
     return pRow;
 }
 
+
 const double* task::Matrix::operator[](size_t row) const
 {
     if ((row < 0) || (row > rows - 1))
@@ -209,13 +162,6 @@ const double* task::Matrix::operator[](size_t row) const
     
     return pRow;
 }
-
-
-
-
-
-
-
 
 
 task::Matrix task::Matrix::operator+(const task::Matrix& a) const
@@ -237,6 +183,7 @@ task::Matrix &task::Matrix::operator+=(const task::Matrix&a)
     return *this = *this + a;
 }
 
+
 task::Matrix task::Matrix::operator-(const task::Matrix& a) const
 {
     if (a.rows != rows | a.cols != cols)
@@ -255,7 +202,6 @@ task::Matrix& task::Matrix::operator-=(const task::Matrix&a)
 {
     return *this = *this - a;
 }
-
 
 
 task::Matrix task::Matrix::operator*(const task::Matrix& a) const
@@ -279,7 +225,6 @@ task::Matrix task::Matrix::operator*(const task::Matrix& a) const
             newMat.mat[a.cols * r + c] = val;
         }
     }
-
     return newMat;
 }
 
@@ -290,7 +235,6 @@ task::Matrix &task::Matrix::operator*=(const task::Matrix&a)
         throw SizeMismatchException();
     return *this = *this * a;
 }
-
 
 
 task::Matrix task::Matrix::operator*(const double& a) const
@@ -328,53 +272,51 @@ task::Matrix task::Matrix::operator+() const
 
 double task::Matrix::Minor(double row_, double col_) const
 {
-  int    minCol = 0;
-  Matrix minMat = Matrix(rows-1, cols-1);
-  double result = 0;
-  int    minRow = 0;
+    int    minCol = 0;
+    Matrix minMat = Matrix(rows-1, cols-1);
+    double result = 0;
+    int    minRow = 0;
 
-  for (int row = 0; row < rows; ++row)
-  {
-    if (row != row_)
+    for (int row = 0; row < rows; ++row)
     {
-      for (int col = 0; col < cols; ++col)
-      {
-        if  (col != col_)
+        if (row != row_)
         {
-          minMat[minRow][minCol] = (*this)[row][col];
-          ++minCol;
+            for (int col = 0; col < cols; ++col)
+            {
+                if  (col != col_)
+                {
+                    minMat[minRow][minCol] = (*this)[row][col];
+                    ++minCol;
+                }
+            }
+            ++minRow;
+            minCol = 0;
         }
-      }
-      ++minRow;
-      minCol = 0;
     }
-  }
 
-  result = minMat.det();
+    result = minMat.det();
 
-  return result;
+    return result;
 }
 
 
 bool WithinTolerance(double arg1, double arg2, double tol)
 {
-  bool test;
+    bool test;
 
-  if (tol == 0.0)
-  {
-    std::numeric_limits<double> lim;
+    if (tol == 0.0)
+    {
+        std::numeric_limits<double> lim;
 
-    double eps = lim.min();
+        double eps = lim.min();
 
-    tol = eps;
-  }
+        tol = eps;
+    }
 
-  test = fabs(arg1 - arg2) <= tol;
+    test = fabs(arg1 - arg2) <= tol;
 
-  return test;
+    return test;
 }
-
-
 
 
 double task::Matrix::det() const
@@ -395,7 +337,7 @@ double task::Matrix::det() const
     double sign = 0.0;
     int zeroCnt = 0;
 
-    
+
     if (rows == 1)
     {
         result = *mat;
@@ -438,27 +380,28 @@ double task::Matrix::det() const
 
         row = maxZeroRow;
 
-    } 
-    
+    }
+
     if (!done)
     {
         for (col = 0; col < cols; ++col)
         {
-            if (!WithinTolerance(mat[row*cols+col], 0.0, 0.0))
+            if (!WithinTolerance(mat[row * cols + col], 0.0, 0.0))
             {
                 sign = (row + col) % 2 == 0 ? 1.0 : -1.0;
 
                 minor = this->Minor(row, col);
 
-                cofactor = sign * mat[row*cols+col] * minor;
+                cofactor = sign * mat[row * cols + col] * minor;
 
                 result += cofactor;
             }
         }
-    } 
+    }
 
     return result;
 }
+
 
 void task::Matrix::transpose()
 {
@@ -520,6 +463,7 @@ std::vector<double> task::Matrix::getRow(size_t row)
     return rower;
 }
 
+
 std::vector<double> task::Matrix::getColumn(size_t column)
 {
     std::vector<double> columner;
@@ -551,9 +495,6 @@ bool task::Matrix::operator!=(const task::Matrix& a) const
 }
 
 
-
-
-
 std::ostream& operator<<(std::ostream& output, const task::Matrix& matrix)
 {
     for (int k = 0; k < matrix.rows * matrix.cols; ++ k)
@@ -563,8 +504,7 @@ std::ostream& operator<<(std::ostream& output, const task::Matrix& matrix)
 
     return output;
 }
-    
-    
+
 
 std::istream& operator>>(std::istream& input, task::Matrix& matrix)
 {
@@ -598,5 +538,57 @@ task::Matrix operator*(const double& a, const task::Matrix& b)
     return newMat;
 }
 }
+
+
+ /*   
+class Row 
+{
+    
+    friend class task::Matrix;
+    
+public:
+
+    task::Matrix& parent;
+    int row;
+    
+    Row(task::Matrix parent_, size_t row_) : parent(parent_), row(row_) {}
+    
+    double operator[](size_t col)
+    {
+        return parent.mat[parent.cols * row + col];
+    }
+};
+
+
+class ConstRow 
+{
+    
+    friend class task::Matrix;
+    
+    public:
+
+    ConstRow(task::Matrix& parent_, size_t row_) : parent(parent_), row(row_) {}
+    
+    const double operator[](size_t col) const
+    {
+        return parent.mat[parent.cols * row + col];
+    }
+    
+    private:
+    
+    const task::Matrix& parent;
+    int row;
+    
+};
+
+task::Matrix::Row task::Matrix::operator[](size_t row)
+{
+    return Row(*this, row);
+}
+
+task::Matrix::ConstRow task::Matrix::operator[](size_t row) const
+{
+    return ConstRow(*this, row);
+}*/
 
 
