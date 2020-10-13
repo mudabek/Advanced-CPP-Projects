@@ -318,7 +318,7 @@ bool WithinTolerance(double arg1, double arg2, double tol)
     return test;
 }
 
-
+/* used and modified program found from tutorialspoint */
 double task::Matrix::det() const
 {
     if (rows != cols)
