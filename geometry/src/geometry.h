@@ -54,6 +54,34 @@ public:
 
     return Point(midX, midY);
   }
+  
+  //shift a point 
+  void shiftPoint(double shiftX, double shiftY) {
+    x = x + shiftX;
+    y = y + shiftY;
+  }
+  
+  //rotate point relative to origin
+  void rotateHelper(double angle) {
+    double sine = sin(angle);
+    double cosine = cos(angle);
+    
+    x = x * cosine - y * sine;
+    y = x * sine - y * cosine;
+  }
+  
+  void rotate(Point& p, double angle) {
+    shiftPoint(-p.x, -p.y);
+    rotateHelper(angle);
+    shiftPoint(p.x, p.y);
+  }
+  
+  void scale(Point& p, double coeff) {
+    shiftPoint(-p.x, -p.y);
+    x = x * coeff;
+    y = y * coeff;
+    shiftPoint(p.x, p.y);
+  }
 };
 
 class Line {
@@ -66,7 +94,7 @@ public:
 
   Line(Point p1, Point p2) {
     slope = (p2.y - p1.y) / (p2.x = p2.y);
-    shift = slope * (-p2.x) + p2.y;
+    shift = slope * (-p2.x) + p2.y; //(x3*y2-x2*y3)/(x3-x2)
   }
 
   Line(Point p, double slope_) {
@@ -79,6 +107,12 @@ public:
     double y = slope * x + shift;
 
     return Point(x, y);
+  }
+  
+  void reflexPoint(Point& p) {
+    double d = (p.x + (p.y - shift) * slope) / (1 + pow(slope, 2));
+    p.x = 2 * d - p.x;
+    p.y = 2 * d * slope - p.y + 2 * shift;
   }
 
   bool operator==(Line const &ln) const {
@@ -190,7 +224,23 @@ public:
   }
   
   void rotate(Point center, double angle) {
-    
+    foc1.rotate(center, angle);
+    foc2.rotate(center, angle);
+  }
+  
+  void reflex(Point center) {
+    foc1.rotate(center, 180);
+    foc2.rotate(center, 180);
+  }
+  
+  void reflex(Line axis) {
+    axis.reflexPoint(foc1);
+    axis.reflexPoint(foc2);
+  }
+  
+  void scale(Point center, double coefficient) {
+    foc1.scale(center, coefficient);
+    foc2.scale(center, coefficient);
   }
 };
 
@@ -213,6 +263,26 @@ public:
   int verticesCount() { return vertices.size(); }
 
   std::vector<Point> getVertices() { return vertices; }
+  
+  void rotate(Point center, double angle) {
+    for(Point p : vertices)
+      p.rotate(center, angle);
+  }
+  
+  void reflex(Point center) {
+    for(Point p : vertices)
+      p.rotate(center, 180);
+  }
+  
+  void reflex(Line axis) {
+    for(Point p : vertices) 
+      axis.reflexPoint(p);
+  }
+  
+  void scale(Point center, double coefficient) {
+    for(Point p : vertices) 
+      p.scale(center, coefficient);
+  }
 };
 
 class Triangle : public Polygon {
@@ -333,7 +403,20 @@ public:
   }
 };
 
-class Square : public Rectangle {};
+class Square : public Rectangle {
+public:
+  Square(Point a, Point c) : Rectangle(a, c, 1) {}
+  
+  Circle circumscribedCircle() {
+    double radius = vertices[0].distance(vertices[2]) / 2;
+    return Circle(center(), radius);
+  }
+  
+  Circle inscribedCircle() {
+    double radius = vertices[0].distance(vertices[1]) / 2;
+    return Circle(center(), radius);
+  }
+};
 
 
 
