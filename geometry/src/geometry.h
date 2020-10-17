@@ -6,8 +6,6 @@
 
 double PI = 2 * acos(0.0);
 
-
-
 class Point {
 
 public:
@@ -76,11 +74,9 @@ public:
     shiftPoint(p.x, p.y);
   }
   
-  void scale(Point& p, double coeff) {
-    shiftPoint(-p.x, -p.y);
-    x = x * coeff;
-    y = y * coeff;
-    shiftPoint(p.x, p.y);
+  void scale(Point& center, double coefficient) {
+    x = coefficient * (x - center.x) + center.x;
+    y = coefficient * (y - center.y) + center.y;
   }
 };
 
@@ -241,6 +237,7 @@ public:
   void scale(Point center, double coefficient) {
     foc1.scale(center, coefficient);
     foc2.scale(center, coefficient);
+    mjor = mjor * coefficient;
   }
 };
 
@@ -264,6 +261,19 @@ public:
 
   std::vector<Point> getVertices() { return vertices; }
   
+  Point centroid() {
+    double center;
+    double sumX = 0;
+    double sumY = 0;
+    
+    for(Point p : vertices) {
+      sumX += p.x;
+      sumY += p.y;
+    }
+    
+    return Point(sumX / vertices.size(), sumY / vertices.size());
+  }
+  
   void rotate(Point center, double angle) {
     for(Point p : vertices)
       p.rotate(center, angle);
@@ -279,9 +289,23 @@ public:
       axis.reflexPoint(p);
   }
   
+  //https://foxford.ru/wiki/matematika/gomotetiya
   void scale(Point center, double coefficient) {
-    for(Point p : vertices) 
+    for (Point p : vertices) {
       p.scale(center, coefficient);
+    }
+  }
+  
+  double perimeter() {
+    Point prev = vertices.back();
+    double perim = 0;
+    
+    for (Point p : vertices) {
+      perim += prev.distance(p);
+      prev = p;
+    }
+    
+    return perim;
   }
 };
 
@@ -342,17 +366,6 @@ public:
     return Circle(center, radius);
   }
 
-  Point centroid() {
-    Point a = vertices[0];
-    Point b = vertices[1];
-    Point c = vertices[2];
-
-    double x = (a.x + b.x + c.x) / 3;
-    double y = (a.y + b.y + c.y) / 3;
-
-    return Point(x, y);
-  }
-
   Point orthocenter() {
     Point a = vertices[0];
     Point b = vertices[1];
@@ -384,6 +397,19 @@ public:
 
     return Circle(center, radius);
   }
+  
+  double area() {
+    Point a = vertices[0];
+    Point b = vertices[1];
+    Point c = vertices[2];
+
+    double ab = a.distance(b);
+    double ac = a.distance(c);
+    double bc = b.distance(c);
+    double halfP = perimeter() / 2;
+    
+    return sqrt(halfP * (halfP - ab) * (halfP - ac) * (halfP - bc));
+  }
 };
 
 class Rectangle : public Polygon {
@@ -398,8 +424,14 @@ public:
   }
   
   Point center() {
-    std::pair<Line, Line> dPair = diagonals();
-    return dPair.first.intersect(dPair.second);
+    centroid();
+  }
+  
+  double area() {
+    double w = vertices[0].distance(vertices[1]);
+    double l = vertices[1].distance(vertices[2]);
+    
+    return w * l;
   }
 };
 
