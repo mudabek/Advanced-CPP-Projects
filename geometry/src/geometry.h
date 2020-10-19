@@ -1,10 +1,13 @@
 #pragma once
 
 #include <cmath>
-#include <iostream>
 #include <vector>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
 
-double PI = 2 * acos(0.0);
+double PI = std::acos(-1);
+double EPS = 1e-6;
 
 class Point {
 
@@ -29,26 +32,27 @@ public:
     return *this;
   }
 
-  bool operator==(Point const &pnt) const {
-    if (x == pnt.x && y == pnt.y)
+  bool operator==(Point const& pnt) const {
+    if ((x - pnt.x) < EPS && (y - pnt.y) < EPS)
       return true;
     return false;
   }
 
-  bool operator!=(Point const &pnt) const { !(*this == pnt); }
+  bool operator!=(Point const& pnt) const { !(*this == pnt); }
 
-  double distance(const Point &pnt) {
+  double distance(const Point& pnt) {
     return sqrt((x - pnt.x) * (x - pnt.x) + (y - pnt.y) * (y - pnt.y));
   }
 
-  Point midpoint(const Point &pnt) {
-    double deltaX = abs(x - pnt.x);
-    double deltaY = abs(y - pnt.y);
+  Point midpoint(const Point& pnt) {
+    double deltaX = std::abs(x - pnt.x);
+    double deltaY = std::abs(y - pnt.y);
 
     double midX, midY;
+    
+    midX = x < pnt.x ? x + deltaX / 2 : pnt.x + deltaX / 2;
+    midY = y < pnt.y ? y + deltaY / 2 : pnt.y + deltaY / 2;
 
-    x < pnt.x ? midX = x + deltaX / 2 : midX = pnt.x + deltaX / 2;
-    y < pnt.y ? midY = y + deltaY / 2 : midY = pnt.y + deltaY / 2;
 
     return Point(midX, midY);
   }
@@ -61,11 +65,11 @@ public:
   
   //rotate point relative to origin
   void rotateHelper(double angle) {
-    double sine = sin(angle);
-    double cosine = cos(angle);
+    double sine = std::sin(angle);
+    double cosine = std::cos(angle);
     
     x = x * cosine - y * sine;
-    y = x * sine - y * cosine;
+    y = x * sine + y * cosine;
   }
   
   void rotate(Point& p, double angle) {
@@ -89,7 +93,7 @@ public:
   Line(double slope_, double shift_) : slope(slope_), shift(shift_) {}
 
   Line(Point p1, Point p2) {
-    slope = (p2.y - p1.y) / (p2.x = p2.y);
+    slope = (p2.y - p1.y) / (p2.x - p1.x);
     shift = slope * (-p2.x) + p2.y; //(x3*y2-x2*y3)/(x3-x2)
   }
 
@@ -167,17 +171,20 @@ std::pair<Point, Point> getRectBD(Point a, Point c, double ratio) {
 class Shape {
 
 public:
-  virtual double perimeter();
+  
+  virtual double perimeter() = 0;
 
-  virtual double area();
+  virtual double area() = 0;
+  
+  virtual bool operator==(const Shape& another) const = 0;
 
-  virtual bool operator==(const Shape &another);
+  virtual void rotate(Point center, double angle) = 0;
 
-  virtual void rotate(Point center, double angle);
+  virtual void reflex(Line axis) = 0;
+  
+  virtual void reflex(Point center) = 0;
 
-  virtual void reflex(Line axis);
-
-  virtual void scale(Point center, double coefficient);
+  virtual void scale(Point center, double coefficient) = 0;
 };
 
 class Ellipse : public Shape {
@@ -196,10 +203,15 @@ public:
     return std::pair<Point, Point>(foc1, foc2);
   }
 
-  double eccentricity() { return center().distance(foc1) / mjor / 2; }
+  double eccentricity() {
+    double semiMajor = mjor / 2;
+    double semiMinor = sqrt(pow(semiMajor, 2) - pow(center().distance(foc1), 2));
+    return sqrt(pow(semiMajor, 2) - pow(semiMinor, 2)) / semiMajor; 
+    
+  }
   
   //https://www.mathsisfun.com/geometry/ellipse-perimeter.html
-  double perimeter() {
+  double perimeter() override{
     double a = mjor / 2;
     double b = sqrt(pow(mjor, 2) - pow(foc1.distance(foc2), 2)) / 2;
     double h = pow(a - b, 2) / pow(a + b, 2);
@@ -207,34 +219,38 @@ public:
     return PI * (a + b) * kern;
   }
   
-  double area() {
+  double area() override{
     double a = mjor / 2;
     double b = sqrt(pow(mjor, 2) - pow(foc1.distance(foc2), 2)) / 2;
     return PI * a * b;
   }
   
-  bool operator==(const Ellipse& another) {
-    if (another.foc1 == foc1 && another.foc2 == foc2 && another.mjor == mjor)
-      return true;
-    return false;
+  bool operator==(const Shape& another) const override{
+      
+    const Ellipse* ell = dynamic_cast<const Ellipse*>(&another);
+
+    if (foc1 != ell->foc1 || foc2 != ell->foc2 || mjor != ell->mjor)
+      return false;
+      
+    return true;
   }
   
-  void rotate(Point center, double angle) {
+  void rotate(Point center, double angle) override{
     foc1.rotate(center, angle);
     foc2.rotate(center, angle);
   }
   
-  void reflex(Point center) {
+  void reflex(Point center) override{
     foc1.rotate(center, 180);
     foc2.rotate(center, 180);
   }
   
-  void reflex(Line axis) {
+  void reflex(Line axis) override{
     axis.reflexPoint(foc1);
     axis.reflexPoint(foc2);
   }
   
-  void scale(Point center, double coefficient) {
+  void scale(Point center, double coefficient) override{
     foc1.scale(center, coefficient);
     foc2.scale(center, coefficient);
     mjor = mjor * coefficient;
@@ -257,9 +273,35 @@ protected:
 public:
   Polygon(std::vector<Point> v) : vertices(v) {}
 
-  int verticesCount() { return vertices.size(); }
+  int verticesCount() const { return vertices.size(); }
 
-  std::vector<Point> getVertices() { return vertices; }
+  std::vector<Point> getVertices() const { return vertices; }
+  
+  Polygon &operator=(const Polygon &poly) {
+    if (poly == *this)
+      return *this;
+
+    vertices = poly.vertices;
+
+    return *this;
+  }
+  
+  bool operator==(const Shape& another) const override {
+    const Polygon* poly = dynamic_cast<const Polygon*>(&another);
+    if (verticesCount() != poly->verticesCount())
+      return false;
+
+    std::vector<Point> shapeV = poly->getVertices();
+    for (Point p : shapeV) {
+      if (std::find(vertices.begin(), vertices.end(), p) == vertices.end())
+        return false;
+    }
+    return true;
+  }
+  
+  bool operator!=(const Shape& another) {
+    return !(*this == another);
+  }
   
   Point centroid() {
     double center;
@@ -274,29 +316,29 @@ public:
     return Point(sumX / vertices.size(), sumY / vertices.size());
   }
   
-  void rotate(Point center, double angle) {
-    for(Point p : vertices)
+  void rotate(Point center, double angle) override{
+    for(Point& p : vertices)
       p.rotate(center, angle);
   }
   
-  void reflex(Point center) {
-    for(Point p : vertices)
+  void reflex(Point center) override{
+    for(Point& p : vertices)
       p.rotate(center, 180);
   }
   
-  void reflex(Line axis) {
-    for(Point p : vertices) 
+  void reflex(Line axis) override{
+    for(Point& p : vertices) 
       axis.reflexPoint(p);
   }
   
   //https://foxford.ru/wiki/matematika/gomotetiya
-  void scale(Point center, double coefficient) {
-    for (Point p : vertices) {
+  void scale(Point center, double coefficient) override{
+    for (Point& p : vertices) {
       p.scale(center, coefficient);
     }
   }
   
-  double perimeter() {
+  double perimeter() override{
     Point prev = vertices.back();
     double perim = 0;
     
@@ -306,6 +348,17 @@ public:
     }
     
     return perim;
+  }
+  
+  double area() override{
+    double area = 0;
+    
+    for (int i = 0; i < verticesCount(); ++ i) {
+      Point p1 = i ? vertices[i - 1] : vertices.back();
+      Point p2 = vertices[i];
+      area += abs((p1.x - p2.x) * (p1.y + p2.y));
+    }
+    return area / 2;
   }
 };
 
@@ -398,18 +451,7 @@ public:
     return Circle(center, radius);
   }
   
-  double area() {
-    Point a = vertices[0];
-    Point b = vertices[1];
-    Point c = vertices[2];
-
-    double ab = a.distance(b);
-    double ac = a.distance(c);
-    double bc = b.distance(c);
-    double halfP = perimeter() / 2;
-    
-    return sqrt(halfP * (halfP - ab) * (halfP - ac) * (halfP - bc));
-  }
+  
 };
 
 class Rectangle : public Polygon {
@@ -425,13 +467,6 @@ public:
   
   Point center() {
     centroid();
-  }
-  
-  double area() {
-    double w = vertices[0].distance(vertices[1]);
-    double l = vertices[1].distance(vertices[2]);
-    
-    return w * l;
   }
 };
 
