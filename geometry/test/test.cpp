@@ -105,11 +105,10 @@ int main() {
 
     Rectangle rec_ae1(e, a, 1);
     Square sq_ae(a, e);
-    std::cout << rec_ae1.getVertices()[3].x << "  " << sq_ae.getVertices()[3].x << std::endl;
-    /*if (!(rec_ae1 == sq_ae)) {
+    if (!(rec_ae1 == sq_ae)) {
         std::cerr << "Test 8.5 failed. (sometimes circle may be equal to ellipse)\n";
         return 1;
-    }*/
+    }
     Circle b3(b, 3);
     Ellipse cf5(c, f, 5);
 
@@ -127,6 +126,7 @@ int main() {
     }
 
     // Ellipse testing
+    std::cout << c.x << "   " << c.y << std::endl;
     cf5 = Ellipse(f, c, 5);
     {
         double c = sqrt(13)/2;
@@ -139,7 +139,7 @@ int main() {
         //std::cerr << "XXXXXXXXX " << cf5.eccentricity() << ' ' << e << '\n';
         //std::cerr << "XXXXXXXXX " << cf5.perimeter() << ' ' << per << '\n';
         //std::cerr << "XXXXXXXXX " << cf5.area() << ' ' << ar << '\n';
-        std::cout << e << "  " << cf5.eccentricity() << std::endl;
+        //std::cout << e << "  " << cf5.eccentricity() << std::endl;
         if (!equals(cf5.eccentricity(), e)) {
             std::cerr << "Test 9.0 failed. (ellipse eccentricity)\n";
             return 1;

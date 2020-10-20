@@ -14,6 +14,8 @@ class Point {
 public:
   double x;
   double y;
+  
+  Point() {}
 
   Point(double x_, double y_) : x(x_), y(y_) {}
 
@@ -41,18 +43,13 @@ public:
   bool operator!=(Point const& pnt) const { !(*this == pnt); }
 
   double distance(const Point& pnt) {
-    return sqrt((x - pnt.x) * (x - pnt.x) + (y - pnt.y) * (y - pnt.y));
+    return sqrt(pow(x - pnt.x, 2) + pow(y - pnt.y, 2));
   }
 
   Point midpoint(const Point& pnt) {
-    double deltaX = std::abs(x - pnt.x);
-    double deltaY = std::abs(y - pnt.y);
-
     double midX, midY;
-    
-    midX = x < pnt.x ? x + deltaX / 2 : pnt.x + deltaX / 2;
-    midY = y < pnt.y ? y + deltaY / 2 : pnt.y + deltaY / 2;
-
+    midX = (x + pnt.x) / 2;
+    midY = (y + pnt.y) / 2;
 
     return Point(midX, midY);
   }
@@ -124,15 +121,6 @@ public:
   bool operator!=(Line const &ln) const { return !(*this == ln); }
 };
 
-//helper for construction rectangle
-double rectHelper(double x, double y, double w, double l) {
-  double root = pow(-1 * y, 2) * (pow(x, 4) + 2 * pow(x, 2) * pow(y, 2) - 2 * pow(x, 2) * pow(l, 2) - 2 * pow(x, 2) * pow(w, 2)
-              + pow(y, 4) - 2 * pow(y, 2) * pow(l, 2) - 2 * pow(y, 2) * pow(w, 2) + pow(l , 4) - 2 * pow(l, 2) * pow(w, 2) + pow(w, 4));
-              
-  return sqrt(root);
-}
-
-
 // Helper function to find line perpendicular to two points
 Line perpend(Point &a, Point &b) {
   Line abLine = Line(a, b);
@@ -145,25 +133,24 @@ std::pair<Point, Point> getRectBD(Point a, Point c, double ratio) {
   double diag = a.distance(c);
   double w = diag / sqrt(ratio * ratio + 1);
   double l = w * ratio;
+  double deltaXW = (c.x - a.x) * (w / diag);
+  double deltaYW = (c.y - a.y) * (w / diag);
+  double deltaXL = (c.x - a.x) * (l / diag);
+  double deltaYL = (c.y - a.y) * (l / diag);
+  double theta = std::atan(l / w);
+  double theta2 = std::atan(w / l);
   
-  double tranX = a.x;
-  double tranY = a.y;
-  
-  double xSh = c.x - a.x;
-  double ySh = c.y - a.y;
-  
-  double bRoot = rectHelper(xSh, ySh, w, l);
-  
-  double bX = (1 / (2 * (pow(xSh, 2) + pow(ySh, 2)))) * (pow(xSh, 3) - 
-              bRoot + xSh * pow(ySh, 2) + xSh * pow(l, 2) - xSh * pow(w, 2));
-  double bY = (1 / (2 * ySh * (pow(xSh, 2) + pow(ySh, 2)))) * (pow(xSh, 2) * pow(ySh, 2) + 
-              xSh * bRoot + pow(ySh, 4) + pow(ySh, 2) * pow(l, 2) - pow(ySh, 2) * pow(w, 2));
-  Point b = Point(bX + xSh, bY + ySh);
-  
-  double bcSlope = Line(c, b).slope;
-  Line ad = Line(a , bcSlope);
-  Line bcPerpend = perpend(b, c);
-  Point d = ad.intersect(bcPerpend);
+  Point b = Point(a.x + deltaXW, a.y + deltaYW);
+  if (deltaXW > 0) 
+    b.rotate(a, theta);
+  else
+    b.rotate(a, -theta);
+    
+  Point d = Point(a.x + deltaXL, a.y + deltaYL);
+  if (deltaXL > 0) 
+    d.rotate(a, -theta);
+  else
+    d.rotate(a, theta);
   
   return std::pair<Point, Point> (b, d);
 }
@@ -193,11 +180,21 @@ public:
   Point foc1;
   Point foc2;
   double mjor;
-
-  Ellipse(Point foc1_, Point foc2_, double mjor_)
+  
+  Ellipse(Point& foc1_, Point& foc2_, double mjor_) //{
       : foc1(foc1_), foc2(foc2_), mjor(mjor_) {}
+  //  foc1 = Point(foc1_.x, foc1_.y);
+  //  foc2 = Point(foc2_.x, foc2_.y);
+  //  mjor = mjor_;
+  //}
+      
+  Point center() {
+    double x = foc2.x;
+    double y = foc2.y;
+    std::cout << x << "  " << y << std::endl;
 
-  Point center() { return foc1.midpoint(foc2); }
+    return Point(x, y);
+  }
 
   std::pair<Point, Point> focuses() {
     return std::pair<Point, Point>(foc1, foc2);
@@ -205,9 +202,8 @@ public:
 
   double eccentricity() {
     double semiMajor = mjor / 2;
-    double semiMinor = sqrt(pow(semiMajor, 2) - pow(center().distance(foc1), 2));
-    return sqrt(pow(semiMajor, 2) - pow(semiMinor, 2)) / semiMajor; 
-    
+    double centToFoc = center().distance(foc1);
+    return centToFoc / semiMajor; 
   }
   
   //https://www.mathsisfun.com/geometry/ellipse-perimeter.html
