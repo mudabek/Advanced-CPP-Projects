@@ -79,7 +79,7 @@ public:
       allocHelper(n);
     } else {
       for (auto it = chunks.begin(); it != chunks.end(); ++it) {
-        if (it->spaceLeft() >= n) {
+        if (it->spaceLeft() >= n * sizeof(T)) {
           it->takeSpace(n * sizeof(T));
           return (T*)it->ending() - n * sizeof(T);
         }
