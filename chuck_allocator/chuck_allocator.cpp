@@ -96,7 +96,11 @@ public:
   }
   
   void destroy(T* p) {
-    p->~T();
+    if (copyCnt == 1) {
+      p->~T();
+    } else {
+      copyCnt--;
+    }
   }
   
   private:
