@@ -1,15 +1,14 @@
 #include <iostream>
-#include <list>
 
 using namespace std;
 
 int MAX_CHUNK = 1024;
 
-class Chunk {
+class Block {
 public:
 
-  Chunk() {
-    chunk = new char[MAX_CHUNK];
+  Block() {
+    block = new char[MAX_CHUNK];
     freeSpace = MAX_CHUNK;
   }
   
@@ -22,12 +21,66 @@ public:
   }
   
   char* ending() {
-    chunk + MAX_CHUNK - freeSpace;
+    block + MAX_CHUNK - freeSpace;
   }
   
   private:
-  char* chunk;
+  char* block;
   int freeSpace;
+};
+
+struct Node
+{
+    Block block;
+    Node* next;
+};
+
+class LinkedList {
+public:
+  Node* head;
+  
+  LinkedList() : head(NULL) {};
+  
+  void deleteList() {
+    Node* cur = head;
+    Node* temp;
+    
+    while (cur != NULL) {
+      temp = cur->next;
+      free(cur);
+      cur = temp;
+    }
+    
+    head = NULL;
+  }
+  
+  bool empty() {
+    if (head == NULL)
+      return true;
+    return false;
+  }
+  
+  void insert(Block block) {
+    Node* temp = new Node;
+    temp->block = block;
+    temp->next = NULL;
+    
+    if (head == NULL) {
+      head = temp;
+    } else {
+      temp->next = head;
+      head = temp;
+    }
+  }
+  
+  void insert(Node* newNode) {
+    if (head == NULL) {
+      head = newNode;
+    } else {
+      newNode->next = head;
+      head = newNode;
+    }
+  }
 };
 
 template <typename T>
@@ -40,48 +93,66 @@ public:
   using const_reference = const T&;
   using size_type = size_t;
   using difference_type = ptrdiff_t;
-  //using rebind = template< class U > struct rebind { typedef allocator<U> other; };
+  //using rebind = template< typename U > struct rebind { typedef allocator<U> other; };
   
   Allocator() {
-    list<Chunk> chunks;
-    copyCnt = 1;
+    LinkedList chunks = LinkedList();
+    int cnt = 1;
+    copyCnt = &cnt;
   }
   
-  ~Allocator() {}
+  ~Allocator() {
+    if (*copyCnt == 1)
+      chunks.deleteList();
+    else 
+      *copyCnt--;
+  }
   
   Allocator(const Allocator& copy) {
-    copyCnt = &copy.copyCnt;
-    list<Chunk> chunks;
-    chunks.assign(copy.chunks.begin(), copy.chunks.end());
+    *copyCnt++;
+    copyCnt = copy.copyCnt;
+    LinkedList chunks;
+    
+    Node* cur = copy.chunks.head;
+    while (cur != NULL) {
+      chunks.insert(cur);
+      cur = cur->next;
+    }
   }
   
   Allocator operator=(const Allocator& a) {
     if (a == *this)
       return *this;
     
-    copyCnt = &a.copyCnt;
-    list<Chunk> chunks;
-    chunks.assign(a.chunks.begin(), a.chunks.end());
+    copyCnt = a.copyCnt;
+    chunks.deleteList();
+    LinkedList chunks;
+    
+    Node* cur = a.chunks.head;
+    while (cur != NULL) {
+      chunks.insert(cur);
+      cur = cur->next;
+    }
     
     return *this;
   }
   
   T* allocHelper(const size_t n) {
-    Chunk temp = Chunk();
-    chunks.push_front(temp);
-    auto it = chunks.begin();
-    it->takeSpace(n * sizeof(T));
-    return (T*)(&chunks.front());
+    Block tempBlock = Block();
+    tempBlock.takeSpace(n * sizeof(T));
+    chunks.insert(tempBlock);
+    return (T*)(&chunks.head);
   }
   
   T* allocate(const size_t n) {
     if(chunks.empty()) {
       allocHelper(n);
     } else {
-      for (auto it = chunks.begin(); it != chunks.end(); ++it) {
-        if (it->spaceLeft() >= n * sizeof(T)) {
-          it->takeSpace(n * sizeof(T));
-          return (T*)it->ending() - n * sizeof(T);
+      Node* temp = chunks.head;
+      while(temp != NULL) {
+        if (temp->block.spaceLeft() >= n * sizeof(T)) {
+          temp->block.takeSpace(n * sizeof(T));
+          return (T*)temp->block.ending() - n * sizeof(T);
         }
       }
       allocHelper(n);
@@ -96,16 +167,12 @@ public:
   }
   
   void destroy(T* p) {
-    if (copyCnt == 1) {
-      p->~T();
-    } else {
-      copyCnt--;
-    }
+    p->~T();
   }
   
   private:
-    int copyCnt;
-    list<Chunk> chunks;
+    int* copyCnt;
+    LinkedList chunks;
 };
 
 
@@ -117,9 +184,9 @@ public:
 
 int main() {
   Allocator<A> alloc;
+  Allocator<A> temp = Allocator<A>(alloc);
   auto p = alloc.allocate(1);
   alloc.construct(p, 1, 2);
-  alloc.construct(p, 4, 5);
   alloc.destroy(p);
   alloc.deallocate(p, 1); 
   
