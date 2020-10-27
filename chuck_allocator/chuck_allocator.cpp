@@ -93,7 +93,9 @@ public:
   using const_reference = const T&;
   using size_type = size_t;
   using difference_type = ptrdiff_t;
-  //using rebind = template< typename U > struct rebind { typedef allocator<U> other; };
+  template<typename U> struct rebind { typedef Allocator<U> other; };
+  
+  
   
   Allocator() {
     LinkedList chunks = LinkedList();
@@ -124,6 +126,7 @@ public:
     if (a == *this)
       return *this;
     
+    *copyCnt++;
     copyCnt = a.copyCnt;
     chunks.deleteList();
     LinkedList chunks;
@@ -176,7 +179,7 @@ public:
 };
 
 
-class A {
+/*class A {
 public:
   A(int x, int y) { cout << x << y << endl; }
   ~A() { cout << "~" << endl; }
@@ -191,4 +194,4 @@ int main() {
   alloc.deallocate(p, 1); 
   
   return 0;
-}
+}*/
