@@ -32,7 +32,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1944eccf-acf8-47fa-bde4-7410962f1f4c" name="Default Changelist" comment="" />
+    <list default="true" id="1944eccf-acf8-47fa-bde4-7410962f1f4c" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/vector_operations/src/vector_ops.h" beforeDir="false" afterPath="$PROJECT_DIR$/vector_operations/src/vector_ops.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vector_operations/test/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/vector_operations/test/test.cpp" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -73,7 +76,7 @@
       <option name="presentableId" value="Default" />
       <updated>1601356284813</updated>
       <workItem from="1601356285964" duration="8748000" />
-      <workItem from="1601398213292" duration="9331000" />
+      <workItem from="1601398213292" duration="8001000" />
     </task>
     <servers />
   </component>
