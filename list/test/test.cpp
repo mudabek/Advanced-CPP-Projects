@@ -79,8 +79,9 @@ void FailWithMsg(const std::string& msg, int line) {
 
 
 int main() {
-
-    {
+    std::cout << "here" << std::endl;
+    task::list<int> list;
+    /*{
         task::list<int> list;
         list.push_back(42);
         ASSERT_TRUE(list.size() == 1)
@@ -89,9 +90,9 @@ int main() {
         ASSERT_TRUE(list.front() == 2)
         list.pop_back();
         ASSERT_TRUE(list.empty())
-    }
+    }*/
 
-
+    /*
     {
         task::list<std::string> list;
         list.push_front("test");
@@ -329,6 +330,6 @@ int main() {
                 ASSERT_EQUAL_MSG(lists_task[list], lists_std[list], "Stress test")
             }
         }
-    }
+    }*/
 
 }

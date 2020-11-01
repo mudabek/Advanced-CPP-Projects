@@ -40,12 +40,19 @@ public:
     class const_iterator {
         // Your code goes here...
     };
+    
+    struct Node {
+      T data;
+      Node* next;
+      Node* prev;
+    };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
     list();
+    
     explicit list(const Alloc& alloc);
     list(size_t count, const T& value, const Alloc& alloc = Alloc());
     explicit list(size_t count, const Alloc& alloc = Alloc());
@@ -122,10 +129,8 @@ public:
     void sort();
 
     // Your code goes here?..
-
-private:
-
-    // Your code goes here...
+    Node* head;
+    Node* tail;
 
 };
 
