@@ -116,14 +116,13 @@ public:
     size_t max_size() const;
     
     void clear() {
-      Node* cur = head;
-      Node* temp;
-      while(cur != NULL) {
-        temp = cur;
-        cur = cur->next;
-        delete temp;
+      while(head != NULL) {
+        Node* temp = head;
+        head = head->next;
       }
       elemCnt = 0;
+      head = NULL;
+      tail = NULL;
     }
 
     iterator insert(const_iterator pos, const T& value);
@@ -139,8 +138,6 @@ public:
       if (this->empty()) {
         head = newNode;
         tail = newNode;
-        head->next = tail;
-        tail->prev = head;
       } else {
         Node* temp = tail;
         tail->next = newNode;
@@ -155,8 +152,6 @@ public:
       if (this->empty()) {
         head = newNode;
         tail = newNode;
-        head->next = tail;
-        tail->prev = head;
       } else {
         Node* temp = tail;
         tail->next = newNode;
@@ -180,8 +175,6 @@ public:
       if (this->empty()) {
         tail = newNode;
         head = newNode;
-        head->next = tail;
-        tail->prev = head;
       } else {
         Node* temp = head;
         newNode->next = head;
@@ -196,8 +189,6 @@ public:
       if (this->empty()) {
         tail = newNode;
         head = newNode;
-        head->next = tail;
-        tail->prev = head;
       } else {
         Node* temp = head;
         newNode->next = head;
@@ -225,19 +216,16 @@ public:
     template <class... Args>
     void emplace_front(Args&&... args);
 
-    void resize(size_t count) {
-      Node** nodeArr = new Node*[count];
-      
-      nodeArr[0] = new Node(0, NULL, NULL);
-      for (int i = 1; i < count; i++) {
-        nodeArr[i] = new Node(0, NULL, nodeArr[i - 1]);
+    void resize(size_t count, T value = T()) {
+      if (count > elemCnt) {
+        while (elemCnt != count) {
+          this->push_back(value);
+        }
+      } else {
+        while (elemCnt != count) {
+          this->pop_back();
+        }
       }
-      
-      for (int i = 0; i < count - 1; i++) {
-        nodeArr[i]->next = nodeArr[i + 1]
-      }
-      
-      
     }
     void swap(list& other);
 

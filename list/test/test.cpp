@@ -92,7 +92,7 @@ int main() {
     }
 
     
-    {
+    {   
         task::list<std::string> list;
         list.push_front("test");
         ASSERT_TRUE(!list.empty())
@@ -100,8 +100,10 @@ int main() {
         ASSERT_TRUE(list.back() == "test")
         list.clear();
         list.clear();
+        std::cout << "test" << std::endl;
         ASSERT_TRUE(list.size() == 0)
         list.resize(10);
+        
         ASSERT_TRUE(list.size() == 10)
         ASSERT_TRUE(list.back() == "")
     }
