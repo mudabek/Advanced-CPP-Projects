@@ -3,7 +3,7 @@
 
 namespace task {
   
-  template<class T, class Alloc>
+  /*template<class T, class Alloc>
   list<T, Alloc>::list() {
     std::cout << "hello" << std::endl;
     head = NULL;
@@ -13,7 +13,7 @@ namespace task {
   template<class T, class Alloc>
   list<T, Alloc>::~list() {
     
-  }
+  }*/
    
   /*explicit task::list::list(const Alloc& alloc) {
     list l = alloc.allocate(1);

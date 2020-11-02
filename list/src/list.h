@@ -1,6 +1,6 @@
 #pragma once
 #include <iterator>
-
+#include <iostream>
 
 namespace task {
 
@@ -40,24 +40,31 @@ public:
     class const_iterator {
         // Your code goes here...
     };
-    
-    struct Node {
-      T data;
-      Node* next;
-      Node* prev;
-    };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+    struct Node {
+      T data;
+      Node* next;
+      Node* prev;
+      
+      Node(T data_, Node* next_, Node* prev_) : data(data_), next(next_), prev(prev_) {}
+    };
 
-    list();
+    list(){
+        head = NULL;
+        tail = NULL;
+        elemCnt = 0;
+    }
     
     explicit list(const Alloc& alloc);
     list(size_t count, const T& value, const Alloc& alloc = Alloc());
     explicit list(size_t count, const Alloc& alloc = Alloc());
 
-    ~list();
+    ~list() {
+        
+    }
 
     list(const list& other);
     list(list&& other);
@@ -67,11 +74,19 @@ public:
     Alloc get_allocator() const;
 
 
-    T& front();
-    const T& front() const;
+    T& front() {
+      return head->data;
+    }
+    const T& front() const {
+      return head->data;
+    }
 
-    T& back();
-    const T& back() const;
+    T& back() {
+      return tail->data;
+    }
+    const T& back() const {
+      return tail->data;
+    }
 
 
     iterator begin();
@@ -87,10 +102,29 @@ public:
     const_reverse_iterator crend() const;
 
 
-    bool empty() const;
-    size_t size() const;
+    bool empty() const {
+      if (elemCnt > 0) {
+        return false;  
+      }
+      return true;
+    }
+    
+    size_t size() const {
+      return elemCnt;
+    }
+    
     size_t max_size() const;
-    void clear();
+    
+    void clear() {
+      Node* cur = head;
+      Node* temp;
+      while(cur != NULL) {
+        temp = cur;
+        cur = cur->next;
+        delete temp;
+      }
+      elemCnt = 0;
+    }
 
     iterator insert(const_iterator pos, const T& value);
     iterator insert(const_iterator pos, T&& value);
@@ -100,13 +134,87 @@ public:
     iterator erase(const_iterator first, const_iterator last);
 
 
-    void push_back(const T& value);
-    void push_back(T&& value);
-    void pop_back();
+    void push_back(const T& value) {
+      Node* newNode = new Node(value, NULL, NULL);
+      if (this->empty()) {
+        head = newNode;
+        tail = newNode;
+        head->next = tail;
+        tail->prev = head;
+      } else {
+        Node* temp = tail;
+        tail->next = newNode;
+        tail = newNode;
+        tail->prev = temp;
+      }
+      elemCnt++;
+    }
+    
+    void push_back(T&& value) {
+      Node* newNode = new Node(value, NULL, NULL);
+      if (this->empty()) {
+        head = newNode;
+        tail = newNode;
+        head->next = tail;
+        tail->prev = head;
+      } else {
+        Node* temp = tail;
+        tail->next = newNode;
+        tail = newNode;
+        tail->prev = temp;
+      }
+      elemCnt++;
+    }
+    
+    void pop_back() {
+      if (this->empty())
+        return;
+      Node* temp = tail;
+      tail = tail->prev;
+      delete temp;
+      elemCnt--;
+    }
 
-    void push_front(const T& value);
-    void push_front(T&& value);
-    void pop_front();
+    void push_front(const T& value) {
+      Node* newNode = new Node(value, NULL, NULL);
+      if (this->empty()) {
+        tail = newNode;
+        head = newNode;
+        head->next = tail;
+        tail->prev = head;
+      } else {
+        Node* temp = head;
+        newNode->next = head;
+        head = temp;
+        temp->prev = head;
+      }
+      elemCnt++;
+    }
+    
+    void push_front(T&& value) {
+      Node* newNode = new Node(value, NULL, NULL);
+      if (this->empty()) {
+        tail = newNode;
+        head = newNode;
+        head->next = tail;
+        tail->prev = head;
+      } else {
+        Node* temp = head;
+        newNode->next = head;
+        head = temp;
+        temp->prev = head;
+      }
+      elemCnt++;
+    }
+    
+    void pop_front() {
+      if (this->empty())
+        return;
+      Node* temp = head;
+      head = head->next;
+      delete temp;
+      elemCnt--;
+    }
 
     template <class... Args>
     iterator emplace(const_iterator pos, Args&&... args);
@@ -117,7 +225,20 @@ public:
     template <class... Args>
     void emplace_front(Args&&... args);
 
-    void resize(size_t count);
+    void resize(size_t count) {
+      Node** nodeArr = new Node*[count];
+      
+      nodeArr[0] = new Node(0, NULL, NULL);
+      for (int i = 1; i < count; i++) {
+        nodeArr[i] = new Node(0, NULL, nodeArr[i - 1]);
+      }
+      
+      for (int i = 0; i < count - 1; i++) {
+        nodeArr[i]->next = nodeArr[i + 1]
+      }
+      
+      
+    }
     void swap(list& other);
 
 
@@ -131,6 +252,7 @@ public:
     // Your code goes here?..
     Node* head;
     Node* tail;
+    size_t elemCnt;
 
 };
 
