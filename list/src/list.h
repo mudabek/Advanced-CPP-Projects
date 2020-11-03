@@ -51,6 +51,12 @@ public:
       
       Node(T data_, Node* next_, Node* prev_) : data(data_), next(next_), prev(prev_) {}
     };
+    
+    /*Alloc alloc_helper(size_t allocSize) {
+      Alloc<T> al;
+      T* a = al.allocate(allocSize);
+      return a;
+    }*/
 
     list(){
         head = NULL;
@@ -58,18 +64,88 @@ public:
         elemCnt = 0;
     }
     
-    explicit list(const Alloc& alloc);
+    explicit list(const Alloc& alloc) {
+      Node* n = alloc.allocate(1);
+      alloc.construct(n, list());
+    }
+    
     list(size_t count, const T& value, const Alloc& alloc = Alloc());
-    explicit list(size_t count, const Alloc& alloc = Alloc());
+    explicit list(size_t count, const Alloc& alloc = Alloc()) {
+      head = NULL;
+      tail = NULL;
+      elemCnt = 0;
+      while (elemCnt < count) {
+        this->push_front(T());
+      }
+    }
 
     ~list() {
         
     }
 
-    list(const list& other);
-    list(list&& other);
-    list& operator=(const list& other);
-    list& operator=(list&& other);
+    list(const list& other) {
+      if (!this->empty())
+        this->clear();
+      
+      Node* temp = other.head;
+      while (temp != NULL) {
+        this->push_back(temp->data);
+      }
+    }
+    
+    list(list&& other) {
+      if (!this->empty())
+        this->clear();
+      
+      Node* temp = other.head;
+      while (temp != NULL) {
+        this->push_back(temp->data);
+      }
+    }
+    
+    /*bool operator==(const list& other) {
+      Node* temp = head;
+      Node* tempOther = other.head;
+      
+      if (elemCnt != other.elemCnt)
+        return false;
+      
+      while (temp != NULL) {
+        if (temp->data != tempOther->data)
+          return false;
+        temp = temp->next;
+        tempOther = tempOther->next;
+      }
+      return true;
+    }
+    
+    list& operator!=(const list& other) {
+      return !(this == other);
+    }*/
+    
+    list& operator=(const list& other) {
+      //if (*this == other)
+      //  return *this;
+        
+      if (!this->empty())
+        this->clear();
+      
+      head = other.head;
+      tail = other.tail;
+      elemCnt = other.elemCnt;
+    }
+    
+    list& operator=(list&& other) {
+      //if (*this == other)
+      //  return *this;
+        
+      if (!this->empty())
+        this->clear();
+      
+      head = other.head;
+      tail = other.tail;
+      elemCnt = other.elemCnt;
+    }
 
     Alloc get_allocator() const;
 
@@ -227,7 +303,19 @@ public:
         }
       }
     }
-    void swap(list& other);
+    void swap(list& other) {
+      list temp = list(other);
+      
+      other.head = head;
+      other.tail= tail;
+      other.elemCnt = elemCnt;
+      
+      head = temp.head;
+      tail = temp.tail;
+      elemCnt = temp.elemCnt;
+      
+      other.clear();
+    }
 
 
     void merge(list& other);

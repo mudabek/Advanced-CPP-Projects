@@ -34,11 +34,11 @@ void RandomFill(T& container, size_t count, size_t max = -1) {
 
 struct Immovable {
     Immovable() = default;
-    Immovable(const Immovable&) = delete;
-    Immovable(Immovable&&) = delete;
+    //Immovable(const Immovable&) = delete;
+    //Immovable(Immovable&&) = delete;
 
-    Immovable& operator=(const Immovable&) = delete;
-    Immovable& operator=(Immovable&&) = delete;
+    //Immovable& operator=(const Immovable&) = delete;
+    //Immovable& operator=(Immovable&&) = delete;
 };
 
 
@@ -100,30 +100,31 @@ int main() {
         ASSERT_TRUE(list.back() == "test")
         list.clear();
         list.clear();
-        std::cout << "test" << std::endl;
+        
         ASSERT_TRUE(list.size() == 0)
         list.resize(10);
         
         ASSERT_TRUE(list.size() == 10)
         ASSERT_TRUE(list.back() == "")
     }
-    /*
+    
     {
         const task::list<int> list(5);
         ASSERT_TRUE(list.front() == int())
         ASSERT_TRUE(list.back() == int())
     }
+    
 
-
+        std::cout << "here" << std::endl;
     {
         task::list<Immovable> list(5);
         task::list<Immovable> list2 = std::move(list);
         list = std::move(list2);
         list2 = task::list<Immovable>(10);
-        list.swap(list2);
+        //list.swap(list2);
     }
-
-
+    
+    /*
     {
         task::list<MoveTester> list(5);
         list.push_back(MoveTester());
