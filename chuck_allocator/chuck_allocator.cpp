@@ -1,4 +1,8 @@
+#include <utility>
 #include <iostream>
+#include <memory>
+#include <vector>
+
 
 using namespace std;
 
@@ -129,48 +133,42 @@ public:
     *copyCnt++;
     copyCnt = a.copyCnt;
     chunks.deleteList();
-    LinkedList chunks;
-    
-    Node* cur = a.chunks.head;
-    while (cur != NULL) {
-      chunks.insert(cur);
-      cur = cur->next;
-    }
+    chunks = a.chunks;
     
     return *this;
   }
   
-  T* allocHelper(const size_t n) {
+  pointer allocHelper(const size_type n) {
     Block tempBlock = Block();
-    tempBlock.takeSpace(n * sizeof(T));
+    tempBlock.takeSpace(n * sizeof(value_type));
     chunks.insert(tempBlock);
-    return (T*)(&chunks.head);
+    return (pointer)(&chunks.head);
   }
   
-  T* allocate(const size_t n) {
+  pointer allocate(const size_type n) {
     if(chunks.empty()) {
       allocHelper(n);
     } else {
       Node* temp = chunks.head;
       while(temp != NULL) {
-        if (temp->block.spaceLeft() >= n * sizeof(T)) {
-          temp->block.takeSpace(n * sizeof(T));
-          return (T*)temp->block.ending() - n * sizeof(T);
+        if (temp->block.spaceLeft() >= n * sizeof(value_type)) {
+          temp->block.takeSpace(n * sizeof(value_type));
+          return (pointer)temp->block.ending() - n * sizeof(value_type);
         }
       }
       allocHelper(n);
     }
   }
   
-  void deallocate(T* p, const size_t n) {}
+  void deallocate(pointer p, const size_type n) {}
   
   template <typename ... Args>
-  void construct(T* p, const Args&&... args) {
-    new (p) T(args...);
+  void construct(pointer p, const Args&&... args) {
+    new (p) value_type(std::forward<const Args>(args)...);
   }
   
-  void destroy(T* p) {
-    p->~T();
+  void destroy(pointer p) {
+    p->~value_type();
   }
   
   private:
@@ -178,20 +176,6 @@ public:
     LinkedList chunks;
 };
 
-
-/*class A {
-public:
-  A(int x, int y) { cout << x << y << endl; }
-  ~A() { cout << "~" << endl; }
-};
-
 int main() {
-  Allocator<A> alloc;
-  Allocator<A> temp = Allocator<A>(alloc);
-  auto p = alloc.allocate(1);
-  alloc.construct(p, 1, 2);
-  alloc.destroy(p);
-  alloc.deallocate(p, 1); 
-  
   return 0;
-}*/
+}
