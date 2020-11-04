@@ -51,8 +51,8 @@ public:
           return *ptr;  
         }
         
-        pointer operator->() const {
-          return ptr;
+        T* operator->() const {
+          return &ptr->data;
         }
         
         iterator& operator--() {
@@ -109,8 +109,8 @@ public:
           return *ptr;  
         }
         
-        pointer operator->() const {
-          return ptr;
+        T* operator->() const {
+          return &ptr->data;
         }
         
         const_iterator& operator--() {

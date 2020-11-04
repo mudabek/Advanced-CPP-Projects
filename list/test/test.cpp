@@ -115,7 +115,6 @@ int main() {
     }
     
 
-        std::cout << "here" << std::endl;
     /*{
         task::list<Immovable> list(5);
         //task::list<Immovable> list2 = std::move(list);
@@ -130,11 +129,11 @@ int main() {
         list.push_back(MoveTester());
         list.push_front(MoveTester());
         list.insert(std::next(list.begin()), MoveTester());
-        //std::cout << std::next(list.begin()) << std::endl;
         ASSERT_TRUE_MSG(list.back().action == "MC", "rvalue push_back")
         ASSERT_TRUE_MSG(list.back().action == "MC", "rvalue push_front")
-        /*ASSERT_TRUE_MSG(std::next(list.cbegin())->action == "MC", "rvalue insert")
-
+        ASSERT_TRUE_MSG(std::next(list.cbegin())->action == "MC", "rvalue insert")
+        std::cout << "here" << std::endl;
+        /*
         task::list<ArgForwardTester> list2;
         MoveTester mt;    // reusable after move because object is left valid
         list2.emplace_back(MoveTester(), mt, std::move(mt));
