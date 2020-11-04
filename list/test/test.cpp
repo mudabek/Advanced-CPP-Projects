@@ -34,11 +34,11 @@ void RandomFill(T& container, size_t count, size_t max = -1) {
 
 struct Immovable {
     Immovable() = default;
-    //Immovable(const Immovable&) = delete;
-    //Immovable(Immovable&&) = delete;
+    Immovable(const Immovable&) = delete;
+    Immovable(Immovable&&) = delete;
 
-    //Immovable& operator=(const Immovable&) = delete;
-    //Immovable& operator=(Immovable&&) = delete;
+    Immovable& operator=(const Immovable&) = delete;
+    Immovable& operator=(Immovable&&) = delete;
 };
 
 
@@ -116,23 +116,24 @@ int main() {
     
 
         std::cout << "here" << std::endl;
-    {
+    /*{
         task::list<Immovable> list(5);
-        task::list<Immovable> list2 = std::move(list);
-        list = std::move(list2);
-        list2 = task::list<Immovable>(10);
+        //task::list<Immovable> list2 = std::move(list);
+        //list = std::move(list2);
+        //list2 = task::list<Immovable>(10);
         //list.swap(list2);
-    }
+    }*/
     
-    /*
+    
     {
         task::list<MoveTester> list(5);
         list.push_back(MoveTester());
         list.push_front(MoveTester());
         list.insert(std::next(list.begin()), MoveTester());
+        //std::cout << std::next(list.begin()) << std::endl;
         ASSERT_TRUE_MSG(list.back().action == "MC", "rvalue push_back")
         ASSERT_TRUE_MSG(list.back().action == "MC", "rvalue push_front")
-        ASSERT_TRUE_MSG(std::next(list.cbegin())->action == "MC", "rvalue insert")
+        /*ASSERT_TRUE_MSG(std::next(list.cbegin())->action == "MC", "rvalue insert")
 
         task::list<ArgForwardTester> list2;
         MoveTester mt;    // reusable after move because object is left valid
@@ -141,11 +142,11 @@ int main() {
         list2.emplace(std::next(list2.begin()), std::move(mt), MoveTester(), mt);
         ASSERT_TRUE_MSG(list2.back().actions == "MCCCMC", "emplace_back")
         ASSERT_TRUE_MSG(list2.front().actions == "CCMCMC", "emplace_front")
-        ASSERT_TRUE_MSG(std::next(list2.begin())->actions == "MCMCCC", "emplace")
+        ASSERT_TRUE_MSG(std::next(list2.begin())->actions == "MCMCCC", "emplace")*/
     }
 
 
-    {
+    /*{
         task::list<size_t> list_task(10, 30);
         std::list<size_t> list_std(10, 30);
         ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")

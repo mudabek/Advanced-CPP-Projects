@@ -1,6 +1,9 @@
 #pragma once
+#include <utility>
 #include <iterator>
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 namespace task {
 
@@ -9,48 +12,132 @@ template<class T, class Alloc = std::allocator<T>>
 class list {
 
 public:
-    class iterator {
-    public:
-        using difference_type = ptrdiff_t;
-        using value_type = T;
-        using pointer = T*;
-        using reference = T&;
-        using iterator_category = std::bidirectional_iterator_tag;
-
-        iterator();
-        iterator(const iterator&);
-        iterator& operator=(const iterator&);
-
-        iterator& operator++();
-        iterator operator++(int);
-        reference operator*() const;
-        pointer operator->() const;
-        iterator& operator--();
-        iterator operator--(int);
-
-        bool operator==(iterator other) const;
-        bool operator!=(iterator other) const;
-
-        // Your code goes here?..
-
-    private:
-        // Your code hoes here...
-    };
-
-    class const_iterator {
-        // Your code goes here...
-    };
-
-    using reverse_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-
     struct Node {
       T data;
       Node* next;
       Node* prev;
       
-      Node(T data_, Node* next_, Node* prev_) : data(data_), next(next_), prev(prev_) {}
+      Node(T data_, Node* next_, Node* prev_) : data(std::move(data_)), next(next_), prev(prev_) {}
     };
+
+    class iterator {
+      public:
+        using difference_type = ptrdiff_t;
+        using value_type = Node;
+        using pointer = Node*;
+        using reference = Node&;
+        using iterator_category = std::bidirectional_iterator_tag;
+
+        iterator(pointer ptr_) : ptr(ptr_) {}
+        
+        iterator(const iterator& other) : ptr(other.ptr) {}
+        
+        iterator& operator=(const iterator& other) {
+          ptr = other.ptr;
+        }
+
+        iterator& operator++() {
+          //iterator i = *this;
+          ptr = ptr->next;
+          return *this;
+        }
+        
+        iterator operator++(int junk) {
+          ptr = ptr->next;
+          return *this;
+        }
+        
+        reference operator*() const {
+          return *ptr;  
+        }
+        
+        pointer operator->() const {
+          return ptr;
+        }
+        
+        iterator& operator--() {
+          //iterator i = *this;
+          ptr = ptr->prev;
+          return *this;
+        }
+        
+        iterator operator--(int junk) {
+          ptr = ptr->prev;
+          return *this;
+        }
+
+        bool operator==(iterator other) const {
+          return ptr == other.ptr;
+        }
+        
+        bool operator!=(iterator other) const {
+          return ptr != other.ptr;
+        }
+  
+      public:
+        pointer ptr;
+    };
+
+    class const_iterator {
+      public:
+        using difference_type = ptrdiff_t;
+        using value_type = Node;
+        using pointer = Node*;
+        using reference = Node&;
+        using iterator_category = std::bidirectional_iterator_tag;
+
+        const_iterator(pointer ptr_) : ptr(ptr_) {}
+        
+        const_iterator(const iterator& other) : ptr(other.ptr) {}
+        
+        const_iterator& operator=(const const_iterator& other) {
+          ptr = other.ptr;
+        }
+
+        const_iterator& operator++() {
+          //const_iterator i = *this;
+          ptr = ptr->next;
+          return *this;
+        }
+        
+        const_iterator operator++(int junk) {
+          ptr = ptr->next;
+          return *this;
+        }
+        
+        reference operator*() const {
+          return *ptr;  
+        }
+        
+        pointer operator->() const {
+          return ptr;
+        }
+        
+        const_iterator& operator--() {
+          //iterator i = *this;
+          ptr = ptr->prev;
+          return *this;
+        }
+        
+        const_iterator operator--(int junk) {
+          ptr = ptr->prev;
+          return *this;
+        }
+
+        bool operator==(iterator other) const {
+          return ptr == other.ptr;
+        }
+        
+        bool operator!=(iterator other) const {
+          return ptr != other.ptr;
+        }
+  
+      public:
+        pointer ptr;
+    };
+
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     
     /*Alloc alloc_helper(size_t allocSize) {
       Alloc<T> al;
@@ -59,9 +146,9 @@ public:
     }*/
 
     list(){
-        head = NULL;
-        tail = NULL;
-        elemCnt = 0;
+      head = NULL;
+      tail = NULL;
+      elemCnt = 0;
     }
     
     explicit list(const Alloc& alloc) {
@@ -75,7 +162,7 @@ public:
       tail = NULL;
       elemCnt = 0;
       while (elemCnt < count) {
-        this->push_front(T());
+        this->push_back(T());
       }
     }
 
@@ -123,7 +210,7 @@ public:
       return !(this == other);
     }*/
     
-    list& operator=(const list& other) {
+    /*list& operator=(const list& other) {
       //if (*this == other)
       //  return *this;
         
@@ -145,7 +232,7 @@ public:
       head = other.head;
       tail = other.tail;
       elemCnt = other.elemCnt;
-    }
+    }*/
 
     Alloc get_allocator() const;
 
@@ -165,11 +252,20 @@ public:
     }
 
 
-    iterator begin();
-    iterator end();
+    iterator begin() {
+      return iterator(head);
+    }
+    iterator end() {
+      return iterator(tail);
+    }
 
-    const_iterator cbegin() const;
-    const_iterator cend() const;
+    const_iterator cbegin() const {
+      return const_iterator(head);
+    }
+    
+    const_iterator cend() const {
+      return const_iterator(tail);
+    }
 
     reverse_iterator rbegin();
     reverse_iterator rend();
@@ -200,9 +296,24 @@ public:
       head = NULL;
       tail = NULL;
     }
+    
+    void insertBefore(Node* node, T value) {
+      Node* newNode = new Node(value, NULL, NULL);
+      Node* temp = node->prev;
+      node->prev = newNode;
+      newNode->next = node;
+      temp->next = newNode;
+      newNode->prev = temp;
+    }
 
-    iterator insert(const_iterator pos, const T& value);
-    iterator insert(const_iterator pos, T&& value);
+    iterator insert(const_iterator pos, const T& value) {
+      insertBefore(pos, value);
+    }
+    
+    iterator insert(const_iterator pos, T&& value) {
+      insertBefore(pos.ptr, value);
+    }
+    
     iterator insert(const_iterator pos, size_t count, const T& value);
 
     iterator erase(const_iterator pos);
@@ -211,6 +322,10 @@ public:
 
     void push_back(const T& value) {
       Node* newNode = new Node(value, NULL, NULL);
+      //newNode->data = std::move(value);
+      //memcpy(&newNode->data, &value, sizeof(value));
+      //newNode->prev = NULL;
+      //newNode->next = NULL;
       if (this->empty()) {
         head = newNode;
         tail = newNode;
@@ -225,6 +340,12 @@ public:
     
     void push_back(T&& value) {
       Node* newNode = new Node(value, NULL, NULL);
+      //Node* newNode = malloc(sizeof(T*));// = new Node(value, NULL, NULL);
+      //newNode->data = std::move(value);
+      //memcpy(&newNode->data, &value, sizeof(value));
+      //std::cout << "read" << std::endl;
+      //newNode->prev = NULL;
+      //newNode->next = NULL;
       if (this->empty()) {
         head = newNode;
         tail = newNode;
@@ -262,6 +383,10 @@ public:
     
     void push_front(T&& value) {
       Node* newNode = new Node(value, NULL, NULL);
+      //newNode->data = std::move(value);
+      //memcpy(&newNode->data, &value, sizeof(value));
+      //newNode->prev = NULL;
+      //newNode->next = NULL;
       if (this->empty()) {
         tail = newNode;
         head = newNode;
