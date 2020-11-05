@@ -16,7 +16,9 @@ public:
       T data;
       Node* next;
       Node* prev;
-      
+
+      Node(T data_) : data(data_), next(NULL), prev(NULL) {}
+
       Node(T data_, Node* next_, Node* prev_) : data(std::move(data_)), next(next_), prev(prev_) {}
     };
 
@@ -29,9 +31,9 @@ public:
         using iterator_category = std::bidirectional_iterator_tag;
 
         iterator(pointer ptr_) : ptr(ptr_) {}
-        
+
         iterator(const iterator& other) : ptr(other.ptr) {}
-        
+
         iterator& operator=(const iterator& other) {
           ptr = other.ptr;
         }
@@ -41,26 +43,26 @@ public:
           ptr = ptr->next;
           return *this;
         }
-        
+
         iterator operator++(int junk) {
           ptr = ptr->next;
           return *this;
         }
-        
+
         reference operator*() const {
-          return *ptr;  
+          return *ptr;
         }
-        
+
         T* operator->() const {
           return &ptr->data;
         }
-        
+
         iterator& operator--() {
           //iterator i = *this;
           ptr = ptr->prev;
           return *this;
         }
-        
+
         iterator operator--(int junk) {
           ptr = ptr->prev;
           return *this;
@@ -69,11 +71,11 @@ public:
         bool operator==(iterator other) const {
           return ptr == other.ptr;
         }
-        
+
         bool operator!=(iterator other) const {
           return ptr != other.ptr;
         }
-  
+
       public:
         pointer ptr;
     };
@@ -87,9 +89,9 @@ public:
         using iterator_category = std::bidirectional_iterator_tag;
 
         const_iterator(pointer ptr_) : ptr(ptr_) {}
-        
+
         const_iterator(const iterator& other) : ptr(other.ptr) {}
-        
+
         const_iterator& operator=(const const_iterator& other) {
           ptr = other.ptr;
         }
@@ -99,26 +101,26 @@ public:
           ptr = ptr->next;
           return *this;
         }
-        
+
         const_iterator operator++(int junk) {
           ptr = ptr->next;
           return *this;
         }
-        
+
         reference operator*() const {
-          return *ptr;  
+          return *ptr;
         }
-        
+
         T* operator->() const {
           return &ptr->data;
         }
-        
+
         const_iterator& operator--() {
           //iterator i = *this;
           ptr = ptr->prev;
           return *this;
         }
-        
+
         const_iterator operator--(int junk) {
           ptr = ptr->prev;
           return *this;
@@ -127,18 +129,18 @@ public:
         bool operator==(iterator other) const {
           return ptr == other.ptr;
         }
-        
+
         bool operator!=(iterator other) const {
           return ptr != other.ptr;
         }
-  
+
       public:
         pointer ptr;
     };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    
+
     /*Alloc alloc_helper(size_t allocSize) {
       Alloc<T> al;
       T* a = al.allocate(allocSize);
@@ -150,12 +152,12 @@ public:
       tail = NULL;
       elemCnt = 0;
     }
-    
+
     explicit list(const Alloc& alloc) {
       Node* n = alloc.allocate(1);
       alloc.construct(n, list());
     }
-    
+
     list(size_t count, const T& value, const Alloc& alloc = Alloc());
     explicit list(size_t count, const Alloc& alloc = Alloc()) {
       head = NULL;
@@ -167,36 +169,36 @@ public:
     }
 
     ~list() {
-        
+
     }
 
     list(const list& other) {
       if (!this->empty())
         this->clear();
-      
+
       Node* temp = other.head;
       while (temp != NULL) {
         this->push_back(temp->data);
       }
     }
-    
+
     list(list&& other) {
       if (!this->empty())
         this->clear();
-      
+
       Node* temp = other.head;
       while (temp != NULL) {
         this->push_back(temp->data);
       }
     }
-    
+
     /*bool operator==(const list& other) {
       Node* temp = head;
       Node* tempOther = other.head;
-      
+
       if (elemCnt != other.elemCnt)
         return false;
-      
+
       while (temp != NULL) {
         if (temp->data != tempOther->data)
           return false;
@@ -205,30 +207,30 @@ public:
       }
       return true;
     }
-    
+
     list& operator!=(const list& other) {
       return !(this == other);
     }*/
-    
+
     /*list& operator=(const list& other) {
       //if (*this == other)
       //  return *this;
-        
+
       if (!this->empty())
         this->clear();
-      
+
       head = other.head;
       tail = other.tail;
       elemCnt = other.elemCnt;
     }
-    
+
     list& operator=(list&& other) {
       //if (*this == other)
       //  return *this;
-        
+
       if (!this->empty())
         this->clear();
-      
+
       head = other.head;
       tail = other.tail;
       elemCnt = other.elemCnt;
@@ -262,7 +264,7 @@ public:
     const_iterator cbegin() const {
       return const_iterator(head);
     }
-    
+
     const_iterator cend() const {
       return const_iterator(tail);
     }
@@ -276,17 +278,17 @@ public:
 
     bool empty() const {
       if (elemCnt > 0) {
-        return false;  
+        return false;
       }
       return true;
     }
-    
+
     size_t size() const {
       return elemCnt;
     }
-    
+
     size_t max_size() const;
-    
+
     void clear() {
       while(head != NULL) {
         Node* temp = head;
@@ -296,7 +298,7 @@ public:
       head = NULL;
       tail = NULL;
     }
-    
+
     void insertBefore(Node* node, T value) {
       Node* newNode = new Node(value, NULL, NULL);
       Node* temp = node->prev;
@@ -309,11 +311,11 @@ public:
     iterator insert(const_iterator pos, const T& value) {
       insertBefore(pos, value);
     }
-    
+
     iterator insert(const_iterator pos, T&& value) {
       insertBefore(pos.ptr, value);
     }
-    
+
     iterator insert(const_iterator pos, size_t count, const T& value);
 
     iterator erase(const_iterator pos);
@@ -337,7 +339,7 @@ public:
       }
       elemCnt++;
     }
-    
+
     void push_back(T&& value) {
       Node* newNode = new Node(value, NULL, NULL);
       //Node* newNode = malloc(sizeof(T*));// = new Node(value, NULL, NULL);
@@ -357,7 +359,7 @@ public:
       }
       elemCnt++;
     }
-    
+
     void pop_back() {
       if (this->empty())
         return;
@@ -380,7 +382,7 @@ public:
       }
       elemCnt++;
     }
-    
+
     void push_front(T&& value) {
       Node* newNode = new Node(value, NULL, NULL);
       //newNode->data = std::move(value);
@@ -398,7 +400,7 @@ public:
       }
       elemCnt++;
     }
-    
+
     void pop_front() {
       if (this->empty())
         return;
@@ -409,13 +411,30 @@ public:
     }
 
     template <class... Args>
-    iterator emplace(const_iterator pos, Args&&... args);
+    iterator emplace(const_iterator pos, Args&&... args) {
+      Node* newNode = new Node(T(std::forward<Args>(args)...));
+      Node* temp = pos.ptr->prev;
+      pos.ptr->prev = newNode;
+      newNode->next = pos.ptr;
+      temp->next = newNode;
+      newNode->prev = temp;
+    }
 
     template <class... Args>
-    void emplace_back(Args&&... args);
+    void emplace_back(Args&&... args) {
+      Node* newNode = new Node(T(std::forward<Args>(args)...));
+      newNode->prev = tail;
+      tail->next = newNode;
+      tail = newNode;
+    }
 
     template <class... Args>
-    void emplace_front(Args&&... args);
+    void emplace_front(Args&&... args) {
+      Node* newNode = new Node(T(std::forward<Args>(args)...));
+      newNode->next = head;
+      head->prev= newNode;
+      head = newNode;
+    }
 
     void resize(size_t count, T value = T()) {
       if (count > elemCnt) {
@@ -430,15 +449,15 @@ public:
     }
     void swap(list& other) {
       list temp = list(other);
-      
+
       other.head = head;
       other.tail= tail;
       other.elemCnt = elemCnt;
-      
+
       head = temp.head;
       tail = temp.tail;
       elemCnt = temp.elemCnt;
-      
+
       other.clear();
     }
 

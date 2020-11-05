@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <list>
-#include "src/list.h"
+#include "../src/list.h"
 
 
 size_t RandomUInt(size_t max = -1) {
@@ -79,7 +79,7 @@ void FailWithMsg(const std::string& msg, int line) {
 
 
 int main() {
-    
+
     {
         task::list<int> list;
         list.push_back(42);
@@ -91,8 +91,8 @@ int main() {
         ASSERT_TRUE(list.empty())
     }
 
-    
-    {   
+
+    {
         task::list<std::string> list;
         list.push_front("test");
         ASSERT_TRUE(!list.empty())
@@ -100,20 +100,20 @@ int main() {
         ASSERT_TRUE(list.back() == "test")
         list.clear();
         list.clear();
-        
+
         ASSERT_TRUE(list.size() == 0)
         list.resize(10);
-        
+
         ASSERT_TRUE(list.size() == 10)
         ASSERT_TRUE(list.back() == "")
     }
-    
+
     {
         const task::list<int> list(5);
         ASSERT_TRUE(list.front() == int())
         ASSERT_TRUE(list.back() == int())
     }
-    
+
 
     /*{
         task::list<Immovable> list(5);
@@ -122,8 +122,8 @@ int main() {
         //list2 = task::list<Immovable>(10);
         //list.swap(list2);
     }*/
-    
-    
+
+
     {
         task::list<MoveTester> list(5);
         list.push_back(MoveTester());
@@ -132,17 +132,21 @@ int main() {
         ASSERT_TRUE_MSG(list.back().action == "MC", "rvalue push_back")
         ASSERT_TRUE_MSG(list.back().action == "MC", "rvalue push_front")
         ASSERT_TRUE_MSG(std::next(list.cbegin())->action == "MC", "rvalue insert")
-        std::cout << "here" << std::endl;
-        /*
+
         task::list<ArgForwardTester> list2;
         MoveTester mt;    // reusable after move because object is left valid
+
         list2.emplace_back(MoveTester(), mt, std::move(mt));
+        std::cout << "here" << std::endl;
         list2.emplace_front(mt, std::move(mt), MoveTester());
+
         list2.emplace(std::next(list2.begin()), std::move(mt), MoveTester(), mt);
         ASSERT_TRUE_MSG(list2.back().actions == "MCCCMC", "emplace_back")
         ASSERT_TRUE_MSG(list2.front().actions == "CCMCMC", "emplace_front")
-        ASSERT_TRUE_MSG(std::next(list2.begin())->actions == "MCMCCC", "emplace")*/
+        ASSERT_TRUE_MSG(std::next(list2.begin())->actions == "MCMCCC", "emplace")
+
     }
+
 
 
     /*{
