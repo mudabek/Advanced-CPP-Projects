@@ -135,7 +135,7 @@ int main() {
 
         task::list<ArgForwardTester> list2;
         MoveTester mt;    // reusable after move because object is left valid
-
+        
         list2.emplace_back(MoveTester(), mt, std::move(mt));
         std::cout << "here" << std::endl;
         list2.emplace_front(mt, std::move(mt), MoveTester());
@@ -149,11 +149,12 @@ int main() {
 
 
 
-    /*{
+    {
         task::list<size_t> list_task(10, 30);
         std::list<size_t> list_std(10, 30);
-        ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
-
+        std::cout <<  << std::endl;
+        //ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
+/*
         list_task.insert(list_task.begin(), 20);
         list_std.insert(list_std.begin(), 20);
 
@@ -168,10 +169,10 @@ int main() {
         list_task.erase(std::prev(list_task.end(), 5), list_task.end());
         list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
-        ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")*/
     }
 
-
+/*
     {
         task::list<size_t> list;
         RandomFill(list, RandomUInt(1000, 5000));

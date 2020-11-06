@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+#include <list>
 
 namespace task {
 
@@ -20,6 +21,14 @@ public:
       Node(T data_) : data(data_), next(NULL), prev(NULL) {}
 
       Node(T data_, Node* next_, Node* prev_) : data(std::move(data_)), next(next_), prev(prev_) {}
+      
+      bool operator==(Node* other) {
+        return data == other.data;
+      }
+      
+      bool operator!=(Node* other) {
+        return data != other.data;
+      }
     };
 
     class iterator {
@@ -158,7 +167,15 @@ public:
       alloc.construct(n, list());
     }
 
-    list(size_t count, const T& value, const Alloc& alloc = Alloc());
+    list(size_t count, const T& value, const Alloc& alloc = Alloc()) {
+      head = NULL;
+      tail = NULL;
+      elemCnt = 0;
+      while (elemCnt < count) {
+        this->push_back(value);
+      }
+    }
+    
     explicit list(size_t count, const Alloc& alloc = Alloc()) {
       head = NULL;
       tail = NULL;
@@ -192,9 +209,9 @@ public:
       }
     }
 
-    /*bool operator==(const list& other) {
-      Node* temp = head;
-      Node* tempOther = other.head;
+    /*bool operator==(const std::list<T>& other) {
+      Node* temp = begin();
+      Node* tempOther = other.begin();
 
       if (elemCnt != other.elemCnt)
         return false;
@@ -206,13 +223,13 @@ public:
         tempOther = tempOther->next;
       }
       return true;
-    }
+    }*/
 
     list& operator!=(const list& other) {
       return !(this == other);
-    }*/
+    }
 
-    /*list& operator=(const list& other) {
+    list& operator=(const list& other) {
       //if (*this == other)
       //  return *this;
 
@@ -234,7 +251,7 @@ public:
       head = other.head;
       tail = other.tail;
       elemCnt = other.elemCnt;
-    }*/
+    }
 
     Alloc get_allocator() const;
 
@@ -422,10 +439,11 @@ public:
 
     template <class... Args>
     void emplace_back(Args&&... args) {
-      Node* newNode = new Node(T(std::forward<Args>(args)...));
-      newNode->prev = tail;
-      tail->next = newNode;
-      tail = newNode;
+      T temp = T(std::forward<Args>(args)...);
+      //newNode->prev = tail;
+      //tail->next = newNode;
+      //tail = newNode;
+      this->push_back(temp);
     }
 
     template <class... Args>
@@ -447,6 +465,7 @@ public:
         }
       }
     }
+    
     void swap(list& other) {
       list temp = list(other);
 
