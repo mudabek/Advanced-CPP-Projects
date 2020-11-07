@@ -137,7 +137,6 @@ int main() {
         MoveTester mt;    // reusable after move because object is left valid
         
         list2.emplace_back(MoveTester(), mt, std::move(mt));
-        std::cout << "here" << std::endl;
         list2.emplace_front(mt, std::move(mt), MoveTester());
 
         list2.emplace(std::next(list2.begin()), std::move(mt), MoveTester(), mt);
@@ -152,27 +151,38 @@ int main() {
     {
         task::list<size_t> list_task(10, 30);
         std::list<size_t> list_std(10, 30);
-        std::cout <<  << std::endl;
-        //ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
-/*
+        
+        ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
+
         list_task.insert(list_task.begin(), 20);
         list_std.insert(list_std.begin(), 20);
-
+        
         list_task.insert(list_task.end(), 10, 20);
         list_std.insert(list_std.end(), 10, 20);
+        
+        
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
 
+        
         list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
         list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
-
+        
         list_task.erase(std::prev(list_task.end(), 5), list_task.end());
         list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
-        ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")*/
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
     }
+    
+    /*std::list<size_t>::iterator stdPtr = list_std.end();
+        task::list<size_t>::iterator taskPtr = list_task.end();
+        for (int i = 0; i < 20; i++) {
+          std::cout << *stdPtr << " std : task " << *taskPtr << std::endl;
+          stdPtr--;
+          taskPtr--;
+        }*/
 
-/*
+
     {
         task::list<size_t> list;
         RandomFill(list, RandomUInt(1000, 5000));
@@ -181,7 +191,7 @@ int main() {
 
         task::list<size_t> list2 = list;
         ASSERT_EQUAL_MSG(list, list2, "Assignment operator")
-
+/*
         list2.resize(0);
         for (auto it = list.crbegin(); it != list.crend(); ++it) {
             list2.push_back(*it);
@@ -197,10 +207,10 @@ int main() {
 
         task::list<size_t> list3(10);
         list = list2 = list3;
-        ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
+        ASSERT_EQUAL_MSG(list, list3, "Assignment operator")*/
     }
 
-
+/*
     {
         task::list<size_t> list_task;
         std::list<size_t> list_std;

@@ -22,12 +22,20 @@ public:
 
       Node(T data_, Node* next_, Node* prev_) : data(std::move(data_)), next(next_), prev(prev_) {}
       
+      Node(Node* prev_) : data(T()), prev(prev_), next(NULL) {}
+      
       bool operator==(Node* other) {
         return data == other.data;
       }
       
       bool operator!=(Node* other) {
         return data != other.data;
+      }
+      
+      bool same(Node* other) {
+        if (data == other->data && prev == other->prev && next == other->next)
+          return true;
+        return false;
       }
     };
 
@@ -38,7 +46,7 @@ public:
         using pointer = Node*;
         using reference = Node&;
         using iterator_category = std::bidirectional_iterator_tag;
-
+        
         iterator(pointer ptr_) : ptr(ptr_) {}
 
         iterator(const iterator& other) : ptr(other.ptr) {}
@@ -48,6 +56,8 @@ public:
         }
 
         iterator& operator++() {
+          //if (ptr->next == NULL)
+          //  return iterator(end_iter);
           //iterator i = *this;
           ptr = ptr->next;
           return *this;
@@ -58,8 +68,8 @@ public:
           return *this;
         }
 
-        reference operator*() const {
-          return *ptr;
+        T operator*() const {
+          return ptr->data;
         }
 
         T* operator->() const {
@@ -83,6 +93,10 @@ public:
 
         bool operator!=(iterator other) const {
           return ptr != other.ptr;
+        }
+        
+        pointer getNode() {
+          return ptr;
         }
 
       public:
@@ -116,8 +130,8 @@ public:
           return *this;
         }
 
-        reference operator*() const {
-          return *ptr;
+        T operator*() const {
+          return ptr->data;
         }
 
         T* operator->() const {
@@ -135,12 +149,16 @@ public:
           return *this;
         }
 
-        bool operator==(iterator other) const {
+        bool operator==(const_iterator other) const {
           return ptr == other.ptr;
         }
 
-        bool operator!=(iterator other) const {
+        bool operator!=(const_iterator other) const {
           return ptr != other.ptr;
+        }
+        
+        pointer getNode() {
+          return ptr;
         }
 
       public:
@@ -270,12 +288,18 @@ public:
       return tail->data;
     }
 
-
     iterator begin() {
       return iterator(head);
     }
+    
     iterator end() {
-      return iterator(tail);
+      if (tail->next != NULL) {
+        Node* temp = new Node(T());
+        tail->next = temp;
+        temp->prev = tail;
+        return iterator(temp);
+      }
+      return tail->next;
     }
 
     const_iterator cbegin() const {
@@ -316,13 +340,20 @@ public:
       tail = NULL;
     }
 
-    void insertBefore(Node* node, T value) {
-      Node* newNode = new Node(value, NULL, NULL);
-      Node* temp = node->prev;
-      node->prev = newNode;
-      newNode->next = node;
-      temp->next = newNode;
-      newNode->prev = temp;
+    void insertBefore(const_iterator pos, T value) {
+      Node* node = pos.getNode();
+      if (node == this->end().ptr) {
+        this->push_back(value);
+      } else if (node == head) {
+        this->push_front(value);
+      } else {
+        Node* newNode = new Node(value, NULL, NULL);
+        Node* temp = node->prev;
+        node->prev = newNode;
+        newNode->next = node;
+        temp->next = newNode;
+        newNode->prev = temp;
+      }
     }
 
     iterator insert(const_iterator pos, const T& value) {
@@ -330,13 +361,61 @@ public:
     }
 
     iterator insert(const_iterator pos, T&& value) {
-      insertBefore(pos.ptr, value);
+      insertBefore(pos, value);
     }
 
-    iterator insert(const_iterator pos, size_t count, const T& value);
-
-    iterator erase(const_iterator pos);
-    iterator erase(const_iterator first, const_iterator last);
+    iterator insert(const_iterator pos, size_t count, const T& value) {
+      for (int i = 0; i < count; i++) {
+        insertBefore(pos, value);
+      }
+    }
+    
+    iterator erase(const_iterator pos) {
+      if (tail->next == NULL) {
+        Node* temp = new Node(T());
+        tail->next = temp;
+        temp->prev = tail;
+      }
+      
+      if (elemCnt == 0) {
+        //skip
+      }
+      
+      if (elemCnt == 1) {
+        pop_back();
+        return this->end();
+      }
+  
+      Node* cur = pos.getNode();
+      
+      if (cur == head) {
+        pop_front();
+        return iterator(head);
+      } else if (cur == tail) {
+        pop_back();
+        return this->end();
+      } else {
+        Node* ret = cur->next;
+        cur->prev->next = cur->next;
+        cur->next->prev = cur->prev;
+        delete cur;
+        elemCnt--;
+        return iterator(ret);
+      }
+    }
+  
+    iterator erase(const_iterator first, const_iterator last) {
+      Node* cur = first.getNode();
+      Node* last_elem = last.getNode();
+      
+      while (!cur->same(last_elem)) {
+        Node* tmp = cur->next;
+        erase(iterator(cur));
+        cur = tmp;
+      }
+      
+      return iterator(cur);
+    }
 
 
     void push_back(const T& value) {
@@ -394,8 +473,8 @@ public:
       } else {
         Node* temp = head;
         newNode->next = head;
-        head = temp;
-        temp->prev = head;
+        head = newNode;
+        temp->prev = newNode;
       }
       elemCnt++;
     }
@@ -412,8 +491,8 @@ public:
       } else {
         Node* temp = head;
         newNode->next = head;
-        head = temp;
-        temp->prev = head;
+        head = newNode;
+        temp->prev = newNode;
       }
       elemCnt++;
     }
@@ -486,13 +565,37 @@ public:
     void remove(const T& value);
     void reverse();
     void unique();
-    void sort();
+    
+    void sort() {
+      int i;
+      bool swapped = true;;
+      Node* ptr;
+      Node* lptr = NULL;
+    
+      if (elemCnt == 0) {
+        return;
+      }
+    
+      Node* start = head;
+      while (swapped) {
+        swapped = 0;
+        ptr = start;
+    
+        while (ptr->next != lptr) {
+          if (ptr->data > ptr->next->data) {
+            std::swap(ptr->data, ptr->next->data);
+            swapped = 1;
+          }
+          ptr = ptr->next;
+        }
+        lptr = ptr;
+      }  
+    }
 
     // Your code goes here?..
     Node* head;
     Node* tail;
     size_t elemCnt;
-
 };
 
 // Your template function definitions may go here...
