@@ -24,6 +24,7 @@ public:
       
       Node(Node* prev_) : data(T()), prev(prev_), next(NULL) {}
       
+      
       bool operator==(Node* other) {
         return data == other.data;
       }
@@ -204,7 +205,7 @@ public:
     }
 
     ~list() {
-
+      
     }
 
     list(const list& other) {
@@ -215,6 +216,7 @@ public:
       while (temp != NULL) {
         this->push_back(temp->data);
       }
+      elemCnt = other.elemCnt;
     }
 
     list(list&& other) {
@@ -225,50 +227,21 @@ public:
       while (temp != NULL) {
         this->push_back(temp->data);
       }
-    }
-
-    /*bool operator==(const std::list<T>& other) {
-      Node* temp = begin();
-      Node* tempOther = other.begin();
-
-      if (elemCnt != other.elemCnt)
-        return false;
-
-      while (temp != NULL) {
-        if (temp->data != tempOther->data)
-          return false;
-        temp = temp->next;
-        tempOther = tempOther->next;
-      }
-      return true;
-    }*/
-
-    list& operator!=(const list& other) {
-      return !(this == other);
+      elemCnt = other.elemCnt;
     }
 
     list& operator=(const list& other) {
-      //if (*this == other)
-      //  return *this;
-
-      if (!this->empty())
-        this->clear();
-
-      head = other.head;
-      tail = other.tail;
-      elemCnt = other.elemCnt;
+      std::cout<< "here" << std::endl;
+      list temp(other);
+      std::swap(head, temp.head);
+      
+      return *this;
     }
 
     list& operator=(list&& other) {
-      //if (*this == other)
-      //  return *this;
-
-      if (!this->empty())
-        this->clear();
-
-      head = other.head;
-      tail = other.tail;
-      elemCnt = other.elemCnt;
+      std::cout<< "here" << std::endl;
+      std::swap(other.head, head);
+      return *this;
     }
 
     Alloc get_allocator() const;
@@ -310,11 +283,21 @@ public:
       return const_iterator(tail);
     }
 
-    reverse_iterator rbegin();
-    reverse_iterator rend();
+    reverse_iterator rbegin() {
+      return reverse_iterator(head);
+    }
+    
+    reverse_iterator rend() {
+      return reverse_iterator(tail);
+    }
 
-    const_reverse_iterator crbegin() const;
-    const_reverse_iterator crend() const;
+    const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(head);
+    }
+    
+    const_reverse_iterator crend() const {
+      const_reverse_iterator(tail);
+    }
 
 
     bool empty() const {
@@ -331,13 +314,14 @@ public:
     size_t max_size() const;
 
     void clear() {
-      while(head != NULL) {
-        Node* temp = head;
-        head = head->next;
+      while (head) {
+        Node* next = head->next;
+        head->~Node();
+        delete head;
+        head = next;
       }
-      elemCnt = 0;
-      head = NULL;
       tail = NULL;
+      elemCnt = 0;
     }
 
     void insertBefore(const_iterator pos, T value) {
@@ -597,7 +581,5 @@ public:
     Node* tail;
     size_t elemCnt;
 };
-
-// Your template function definitions may go here...
 
 }  // namespace task
