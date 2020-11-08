@@ -71,7 +71,7 @@ void FailWithMsg(const std::string& msg, int line) {
 
 int main() {
 
-    {
+   /* {
         {
             for (int i = 0; i < 1'000'000; ++i) {
                 auto u = UniquePtr<long long>(new long long(5));
@@ -161,26 +161,32 @@ int main() {
             }
         }
     }
-/*
+*/
     {
         auto sp = SharedPtr<int>(new int(23));
+        //std::cout << sp.use_count() << std::endl;
         WeakPtr<int> weak = sp;
+        //std::cout << sp.use_count() << std::endl;
         {
             auto shared = SharedPtr<int>(new int(42));
             weak = shared;
             ASSERT_TRUE(weak.use_count() == 1);
             ASSERT_TRUE(!weak.expired());
         }
+        
         ASSERT_TRUE(weak.use_count() == 0);
         ASSERT_TRUE(weak.expired());
-
+        
         weak = sp;
         auto wp = weak;
+        
         ASSERT_TRUE(weak.use_count() == 1);
+        std::cout << weak.use_count() << std::endl;
         auto wwp = std::move(weak);
+        std::cout << weak.use_count() << std::endl;
         ASSERT_TRUE(weak.use_count() == 0);
         ASSERT_TRUE(wwp.use_count() == 1);
-
+/*
         auto ssp = wwp.lock();
         ASSERT_TRUE(sp.use_count() == 2);
 
@@ -190,7 +196,7 @@ int main() {
             ASSERT_TRUE(nextHead.use_count() == 2);
             head.reset();
             ASSERT_TRUE(nextHead.use_count() == 1);
-        }
-    }*/
+        }*/
+    }
 
 }

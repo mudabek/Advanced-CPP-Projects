@@ -2,6 +2,8 @@
 
 
 namespace task {
+    
+bool noShared = false;
 
 template <class T>
 class UniquePtr {
@@ -14,6 +16,7 @@ public:
   UniquePtr(UniquePtr&& move) {
     move.swap(*this);
   }
+  
   UniquePtr() : ptr(nullptr) {}
   
   ~UniquePtr() {
@@ -57,33 +60,37 @@ public:
   }
 };
 
+template <class T>
+class WeakPtr;
 
 template <class T>
 class SharedPtr {
-private:
+public:
   T* ptr = nullptr;
   int *sharedCnt;
+  int *weakCnt;
   
 public:
     
-  SharedPtr() : ptr(nullptr), sharedCnt(new int(1)) {}  
+  SharedPtr() : ptr(nullptr), sharedCnt(new int(1)), weakCnt(new int(0)) {}  
 
-  SharedPtr(T* ptr_) {
-    ptr = ptr_;
-    sharedCnt = new int(1);
-  }
+  SharedPtr(T* ptr_) : ptr(ptr_), sharedCnt(new int(1)), weakCnt(new int(0)) {}
+  
+  SharedPtr(WeakPtr<T> wPtr) : ptr(wPtr.shPtr.ptr), sharedCnt(new int(0)), weakCnt(new int(1)) {}
   
   ~SharedPtr() {
     if (sharedCnt != nullptr) {
       (*sharedCnt)--;
-      if(*sharedCnt == 0) {
+      if(*sharedCnt == 0 && *weakCnt == 0) {
         delete ptr;
         delete sharedCnt;
+        delete weakCnt;
+        noShared = true;
       }
     }  
   }
   
-  SharedPtr(const SharedPtr<T>& other) : ptr(other.ptr), sharedCnt(other.sharedCnt) {
+  SharedPtr(const SharedPtr<T>& other) : ptr(other.ptr), sharedCnt(other.sharedCnt), weakCnt(other.weakCnt) {
     (*sharedCnt)++;
   }
   
@@ -125,6 +132,7 @@ public:
   void swap(SharedPtr<T>& otherPtr) {
     std::swap(ptr, otherPtr.ptr);
     std::swap(sharedCnt, otherPtr.sharedCnt);
+    std::swap(weakCnt, otherPtr.weakCnt);
   }
   
   void reset() {
@@ -141,11 +149,76 @@ public:
 
 template <class T>
 class WeakPtr {
-    // Your code goes here...
+public:
+  SharedPtr<T> shPtr;
+  
+  WeakPtr(SharedPtr<T> shPtr_) {
+    shPtr = shPtr_;
+    if (shPtr.sharedCnt)
+      (*shPtr.weakCnt)++;
+  }
+  
+  WeakPtr(const WeakPtr<T>& other) : shPtr(other.shPtr) {
+    (*shPtr.weakCnt)++;
+    (*shPtr.sharedCnt)--;
+  }
+  
+  WeakPtr(WeakPtr&& move) {
+    std::cout << "here" << std::endl;
+    move.swap(*this);
+  }
+  
+  ~WeakPtr() {
+    (*shPtr.weakCnt)--;
+    if (*shPtr.sharedCnt == 0) {
+      shPtr.~SharedPtr();
+    }
+  }
+  
+  WeakPtr& operator=(SharedPtr<T>& other) {
+    noShared = false;
+    WeakPtr(other).swap(*this);
+    (*shPtr.sharedCnt)--;
+    return *this;
+  }
+  
+  WeakPtr& operator=(WeakPtr&& move) {
+    shPtr = SharedPtr<T>();
+    move.swap(*this);
+    //(*shPtr.sharedCnt)--;
+	return *this;
+  }
+  
+  WeakPtr<T>& operator=(const WeakPtr<T>& other) {
+    WeakPtr(std::move(other)).swap(*this);
+    //(*shPtr.sharedCnt)--;
+    return *this;
+  }
+  
+  int use_count() {
+    if (noShared)
+      return 0;
+    return shPtr.use_count();
+  }
+  
+  bool expired() {
+    return use_count() == 0;
+  }
+  
+  SharedPtr<T> lock() {
+    SharedPtr<T> ret = expired() ? SharedPtr<T>() : SharedPtr<T>(*this);
+    return ret;
+  }
+  
+  void swap(WeakPtr<T>& otherPtr) {
+    std::swap(shPtr, otherPtr.shPtr);
+  }
+  
+  void reset() {
+    WeakPtr().swap(*this);
+  }
 };
 
-
-// Your template function definitions may go here...
 
 }  // namespace task
 
