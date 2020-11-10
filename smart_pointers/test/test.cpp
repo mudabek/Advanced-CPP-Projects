@@ -21,8 +21,8 @@ size_t RandomUInt(size_t min, size_t max) {
     return min + RandomUInt(max - min);
 }
 
-
-/*struct Node;
+/*
+struct Node;
 
 struct Next {
     SharedPtr<Node> shared;
@@ -71,7 +71,7 @@ void FailWithMsg(const std::string& msg, int line) {
 
 int main() {
 
-   /* {
+    {
         {
             for (int i = 0; i < 1'000'000; ++i) {
                 auto u = UniquePtr<long long>(new long long(5));
@@ -83,7 +83,7 @@ int main() {
                 uuu = std::move(u);
             }
         }
-        
+
         {
             for (int k = 0; k < 10; ++k) {
                 std::vector<UniquePtr<int>> v;
@@ -98,12 +98,12 @@ int main() {
         auto p = UniquePtr<std::string>(new std::string("1234567890"));
         ASSERT_TRUE(p->length() == 10);
     }
-    
+
     {
         using std::vector;
-        
+
         auto first_ptr = SharedPtr<vector<int>>(new vector<int>(1'000'000));
-        
+
         (*first_ptr)[0] = 1;
 
         vector<int>& vec = *first_ptr;
@@ -120,16 +120,16 @@ int main() {
 
         ASSERT_TRUE(first_ptr.use_count() == 1);
         ASSERT_TRUE(second_ptr.use_count() == 1);
-        
+
         for (int i = 0; i < 10; ++i) {
             auto third_ptr = SharedPtr<vector<int>>(new vector<int>(vec));
             auto fourth_ptr = second_ptr;
             fourth_ptr.swap(third_ptr);
             ASSERT_TRUE(second_ptr.use_count() == 2);
         }
-        
+
         ASSERT_TRUE(second_ptr.use_count() == 1);
-        
+
         {
             vector<SharedPtr<vector<int>>> ptrs(10, SharedPtr<vector<int>>(first_ptr));
             for (int i = 0; i < 100'000; ++i) {
@@ -161,32 +161,26 @@ int main() {
             }
         }
     }
-*/
+
     {
         auto sp = SharedPtr<int>(new int(23));
-        //std::cout << sp.use_count() << std::endl;
         WeakPtr<int> weak = sp;
-        //std::cout << sp.use_count() << std::endl;
         {
             auto shared = SharedPtr<int>(new int(42));
             weak = shared;
             ASSERT_TRUE(weak.use_count() == 1);
             ASSERT_TRUE(!weak.expired());
         }
-        
         ASSERT_TRUE(weak.use_count() == 0);
         ASSERT_TRUE(weak.expired());
-        
+
         weak = sp;
         auto wp = weak;
-        
         ASSERT_TRUE(weak.use_count() == 1);
-        std::cout << weak.use_count() << std::endl;
         auto wwp = std::move(weak);
-        std::cout << weak.use_count() << std::endl;
         ASSERT_TRUE(weak.use_count() == 0);
         ASSERT_TRUE(wwp.use_count() == 1);
-/*
+        /*
         auto ssp = wwp.lock();
         ASSERT_TRUE(sp.use_count() == 2);
 

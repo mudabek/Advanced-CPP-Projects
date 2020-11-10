@@ -142,7 +142,6 @@ public:
   void reset(T* newPtr) {
     delete ptr;
     ptr = nullptr;
-    //sharedCnt = nullptr;
     std::swap(ptr, newPtr);
   }
 };
@@ -164,7 +163,6 @@ public:
   }
   
   WeakPtr(WeakPtr&& move) {
-    std::cout << "here" << std::endl;
     move.swap(*this);
   }
   
@@ -185,13 +183,11 @@ public:
   WeakPtr& operator=(WeakPtr&& move) {
     shPtr = SharedPtr<T>();
     move.swap(*this);
-    //(*shPtr.sharedCnt)--;
 	return *this;
   }
   
   WeakPtr<T>& operator=(const WeakPtr<T>& other) {
     WeakPtr(std::move(other)).swap(*this);
-    //(*shPtr.sharedCnt)--;
     return *this;
   }
   
