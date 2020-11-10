@@ -544,11 +544,123 @@ public:
     }
 
 
-    void merge(list& other);
-    void splice(const_iterator pos, list& other);
-    void remove(const T& value);
-    void reverse();
-    void unique();
+    void merge(list& other) {
+      if (other.empty()) {
+        return;
+      }
+      
+      Node* new_list_head, this_cur, other_cur;
+      this_cur = head;
+      other_cur = other->head;
+    
+      if (this->head->data < other->head->data) {
+        new_list_head = this->head;
+        this_cur = this_cur->next;
+      } else {
+        new_list_head = other->head;
+        other_cur = other_cur->next;
+      }
+    
+      Node* cur = new_list_head;
+    
+      while (this_cur && other_cur) {
+        if (this_cur->value < other_cur->value) {
+          cur->next = this_cur;
+          cur->next->prev = cur;
+          this_cur = this_cur->next;
+        } else {
+          cur->next = other_cur;
+          cur->next->prev = cur;
+          other_cur = other_cur->next;
+        }
+        cur = cur->next;
+      }
+    
+      Node* this_tail = this_cur;
+    
+      while (this_cur) {
+        cur->next = this_cur;
+        cur->next->prev = cur;
+        this_cur = this_cur->next;
+        this_tail = cur;
+        cur = cur->next;
+      }
+    
+      Node* other_tail = other_cur;
+    
+      while (other_cur) {
+        cur->next = other_cur;
+        cur->next->prev = cur;
+        other_cur = other_cur->next;
+        other_tail = cur;
+        cur = cur->next;
+      }
+    
+      head = new_list_head;
+      tail = this_tail ? this_tail : other_tail;
+      tail->next = NULL;
+      elemCnt = elemCnt + other->elemCnt;
+      other->head = other->tail = NULL;
+    }
+    
+    void splice(const_iterator pos, list& other) {
+      if (allocator != other.allocator) {
+        return;
+      }
+      
+      Node* cur = other->head;
+      
+      while (cur->next != NULL) {
+        this->insert(pos, cur->data);
+        cur = cur->next;
+        elemCnt++;
+      }
+      
+      while (other->elemCnt != 0) {
+        other->pop_back();
+      }
+    }
+    
+    void remove(const T& value) {
+      for (auto it = begin(); it != end(); ++it) {
+        if (*it->data == value) {
+          erast(it);
+        }
+      }
+    }
+    
+    void reverse() {
+      Node* temp = NULL;
+      Node* cur = head;
+    
+      while (cur != NULL) {
+        temp = cur->prev;
+        cur->prev = cur->next;
+        cur->next = temp;
+        cur = cur->prev;
+      }
+    
+      if (temp != NULL) {
+        head = temp->prev;
+      }
+    }
+    
+    void unique() {
+      if (elemCnt == 0 || elemCnt == 1) {
+        return;
+      }
+      
+      Node* cur = head;
+      Node* next;
+    
+      while (cur->next != NULL) {
+        if (cur->data == cur->next->data) {
+          remove(cur->data);
+        } else {
+          cur = cur->next;
+        }
+      }
+    }
     
     void sort() {
       int i;

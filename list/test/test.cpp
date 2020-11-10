@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <list>
-#include "../src/list.h"
+#include "src/list.h"
 
 
 size_t RandomUInt(size_t max = -1) {
@@ -100,10 +100,8 @@ int main() {
         ASSERT_TRUE(list.back() == "test")
         list.clear();
         list.clear();
-
         ASSERT_TRUE(list.size() == 0)
         list.resize(10);
-
         ASSERT_TRUE(list.size() == 10)
         ASSERT_TRUE(list.back() == "")
     }
@@ -114,13 +112,13 @@ int main() {
         ASSERT_TRUE(list.back() == int())
     }
 
-
-    /*{
+    /*
+    {
         task::list<Immovable> list(5);
-        //task::list<Immovable> list2 = std::move(list);
-        //list = std::move(list2);
-        //list2 = task::list<Immovable>(10);
-        //list.swap(list2);
+        task::list<Immovable> list2 = std::move(list);
+        list = std::move(list2);
+        list2 = task::list<Immovable>(10);
+        list.swap(list2);
     }*/
 
 
@@ -135,56 +133,47 @@ int main() {
 
         task::list<ArgForwardTester> list2;
         MoveTester mt;    // reusable after move because object is left valid
-        
         list2.emplace_back(MoveTester(), mt, std::move(mt));
         list2.emplace_front(mt, std::move(mt), MoveTester());
-
         list2.emplace(std::next(list2.begin()), std::move(mt), MoveTester(), mt);
         ASSERT_TRUE_MSG(list2.back().actions == "MCCCMC", "emplace_back")
         ASSERT_TRUE_MSG(list2.front().actions == "CCMCMC", "emplace_front")
         ASSERT_TRUE_MSG(std::next(list2.begin())->actions == "MCMCCC", "emplace")
-
     }
-
 
 
     {
         task::list<size_t> list_task(10, 30);
         std::list<size_t> list_std(10, 30);
-        
         ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
 
         list_task.insert(list_task.begin(), 20);
         list_std.insert(list_std.begin(), 20);
-        
+
         list_task.insert(list_task.end(), 10, 20);
         list_std.insert(list_std.end(), 10, 20);
-        
-        
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
 
-        
         list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
         list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
-        
+
         list_task.erase(std::prev(list_task.end(), 5), list_task.end());
         list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
     }
 
-
+    
     {
         task::list<size_t> list;
         RandomFill(list, RandomUInt(1000, 5000));
         list.sort();
         ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
-        std::cout<< "here" << std::endl;
-        task::list<size_t> list2 = list;
-        std::cout<< "now here" << std::endl;
-        //ASSERT_EQUAL_MSG(list, list2, "Assignment operator")
         /*
+        task::list<size_t> list2 = list;
+        ASSERT_EQUAL_MSG(list, list2, "Assignment operator")
+        
         list2.resize(0);
         for (auto it = list.crbegin(); it != list.crend(); ++it) {
             list2.push_back(*it);
