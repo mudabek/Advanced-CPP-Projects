@@ -107,7 +107,7 @@ public:
     class const_iterator {
       public:
         using difference_type = ptrdiff_t;
-        using value_type = Node;
+        using value_type = const Node;
         using pointer = Node*;
         using reference = Node&;
         using iterator_category = std::bidirectional_iterator_tag;
@@ -131,7 +131,7 @@ public:
           return *this;
         }
 
-        T operator*() const {
+        const T operator*() const {
           return ptr->data;
         }
 
@@ -169,24 +169,22 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    /*Alloc alloc_helper(size_t allocSize) {
-      Alloc<T> al;
-      T* a = al.allocate(allocSize);
-      return a;
-    }*/
-
     list(){
       head = NULL;
       tail = NULL;
       elemCnt = 0;
+      allocator = Alloc();
     }
 
     explicit list(const Alloc& alloc) {
-      Node* n = alloc.allocate(1);
-      alloc.construct(n, list());
+      head = NULL;
+      tail = NULL;
+      elemCnt = 0;
+      allocator = Alloc();
     }
 
     list(size_t count, const T& value, const Alloc& alloc = Alloc()) {
+      allocator = alloc;
       head = NULL;
       tail = NULL;
       elemCnt = 0;
@@ -196,6 +194,7 @@ public:
     }
     
     explicit list(size_t count, const Alloc& alloc = Alloc()) {
+      allocator = alloc;
       head = NULL;
       tail = NULL;
       elemCnt = 0;
@@ -231,7 +230,6 @@ public:
     }
 
     list& operator=(const list& other) {
-      std::cout<< "here" << std::endl;
       list temp(other);
       std::swap(head, temp.head);
       
@@ -239,12 +237,13 @@ public:
     }
 
     list& operator=(list&& other) {
-      std::cout<< "here" << std::endl;
       std::swap(other.head, head);
       return *this;
     }
 
-    Alloc get_allocator() const;
+    Alloc get_allocator() const {
+      return allocator;
+    }
 
 
     T& front() {
@@ -268,6 +267,7 @@ public:
     iterator end() {
       if (tail->next != NULL) {
         Node* temp = new Node(T());
+        //Node* temo = allocator.construct(Node(T()));
         tail->next = temp;
         temp->prev = tail;
         return iterator(temp);
@@ -362,7 +362,7 @@ public:
       }
       
       if (elemCnt == 0) {
-        //skip
+        //throw error
       }
       
       if (elemCnt == 1) {
@@ -576,10 +576,10 @@ public:
       }  
     }
 
-    // Your code goes here?..
     Node* head;
     Node* tail;
     size_t elemCnt;
+    Alloc allocator;
 };
 
 }  // namespace task

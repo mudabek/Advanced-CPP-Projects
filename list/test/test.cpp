@@ -173,14 +173,6 @@ int main() {
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
     }
-    
-    /*std::list<size_t>::iterator stdPtr = list_std.end();
-        task::list<size_t>::iterator taskPtr = list_task.end();
-        for (int i = 0; i < 20; i++) {
-          std::cout << *stdPtr << " std : task " << *taskPtr << std::endl;
-          stdPtr--;
-          taskPtr--;
-        }*/
 
 
     {
@@ -192,7 +184,7 @@ int main() {
         task::list<size_t> list2 = list;
         std::cout<< "now here" << std::endl;
         //ASSERT_EQUAL_MSG(list, list2, "Assignment operator")
-    /*
+        /*
         list2.resize(0);
         for (auto it = list.crbegin(); it != list.crend(); ++it) {
             list2.push_back(*it);
@@ -211,7 +203,7 @@ int main() {
         ASSERT_EQUAL_MSG(list, list3, "Assignment operator")*/
     }
 
-/*
+    /*
     {
         task::list<size_t> list_task;
         std::list<size_t> list_std;
