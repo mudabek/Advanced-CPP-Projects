@@ -1,6 +1,3 @@
-# Задача 6: smart pointers
-
-### Условие:
 Требуется реализовать упрощённые аналоги умных указателей из C++11: 
 [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr), 
 [`std::shared_ptr`](https://en.cppreference.com/w/cpp/memory/shared_ptr), 
@@ -30,9 +27,3 @@
   `SharedPtr`’ов, указывающих на этот же объект.
   - Метод `lock()`, возвращающий `SharedPtr`
   - Методы `reset` и `swap`
-
-##### Стоимость:
-Задача стоит 8 баллов.
-
-##### Срок сдачи:
-Решения сданные позже 23:59:59 10 Ноября 2020 года не принимаются.
