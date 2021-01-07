@@ -1,6 +1,17 @@
 # Advanced C++
-#### Short information
+#### Short information:
 This repository contains C++ projects I made during the Advanced C++ course I took as a part of Mail.ru Group Machine Learning Academy 
+
+#### List of topics:
++ compiler, assembler
++ memory in C++
++ function, structs, classes, virtual functions
++ classes, inheritance, polymorphism
++ templates, exceptions
++ allocators
++ STL containers, iterators
++ smart pointers
++ metaprogramming, compile-time calculations
 
 #### Overview of folders/branches:
 + count_determinant_assembly - small program written in assembly language for computing determinant of a 3x3 matrix
